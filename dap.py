@@ -7,13 +7,13 @@ app = typer.Typer()
 
 
 @app.command()
-def create(projectName: str, projectVersion: str, useSnakemake: bool = True,
-            useMake: bool = False, useBMake: bool = False):
-    createProject(projectName, projectVersion, useSnakemake, useMake, useBMake)
+def create(projectname: str, projectversion: str, usesnakemake: bool = True,
+            usemake: bool = False, usebmake: bool = False):
+    createProject(projectname, projectversion, usesnakemake, usemake, usebmake)
 
 @app.command()
-def clone(sourceVersion: str, newVersion: str):
-    cloneVersion(sourceVersion, newVersion)
+def clone(sourceversion: str, newversion: str):
+    cloneVersion(sourceversion, newversion)
 
 if __name__ == "__main__":
     app()

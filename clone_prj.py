@@ -36,7 +36,7 @@ def cloneVersion(sourceVersion, destinationVersion):
     links = []
     for link in os.listdir(currentVPath):
         if (os.path.islink(link)):
-            links.insert(link)
+            links.append(link)
     #crea copia di ogni file in local/
     for link in links:
         realPath =  os.listdir(link)

@@ -44,14 +44,14 @@ filesToCreateVersionSpecific = {
 filesToLink = {
     'default': [], #[ ['source', 'dest']],
     'make': [['local/rules/makefile', 'makefile']],
-    'snakemake': ['local/rules/Snakefile.mk', 'cluster.yaml'],
-    'bmake': ['local/rules/rules.mk','config.sk']
+    'snakemake': [['local/rules/Snakefile.mk', 'cluster.yaml']],
+    'bmake': [['local/rules/rules.mk','config.sk']]
 }
 
 #Link. Path source relativo a basePath ma con aggiunta di _versionN
 #es local/rules/makefile -> local/rules/makefile_V1
 filesToLinkVersionSpecific = {
-    'default': ['source', 'dest', 'sourceFormat'],
+    'default': [['source', 'dest', 'sourceFormat']],
     'make': [
         ['local/config/makefile', 'config', '']
     ],
@@ -99,9 +99,8 @@ def execute():
     for directory in baseDirectories:
         makeFolder(directory)
     #Copia i file di default nelle directory create 
-    for functionality in functionalities:
-        for fileToCopy in filesToCopy[functionality]:
-            copyFile(os.path.join(os.getcwd(), "model" ,fileToCopy[0]), fileToCopy[1])
+    for fileToCopy in filesToCopy:
+        copyFile(os.path.join(os.getcwd(), "model" ,fileToCopy[0]), fileToCopy[1])
     #Crea i file da creare nuovi
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
@@ -117,7 +116,7 @@ def execute():
         for fileToLink in filesToLinkVersionSpecific[functionality]:
             makeLink(fileToLink[0] + "_" + versionN + fileToLink[2], fileToLink[1])
     #Crea .gitignore che ignora tutta la dataset eccetto i link simbolici
-    with open(os.path.join(basePath, '.gitignore', 'w')) as gitignore:
+    with open(os.path.join(basePath, '.gitignore'), 'w') as gitignore:
         gitignore.write("dataset/*")
         for link in filesToLink:
             gitignore.write("!" + link[1])
@@ -139,11 +138,11 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
 
     useBMake = useMake_; useSnakeMake = useSnakeMake_; useMake = useBMake_
     if (useBMake):
-        functionalities.insert('bmake')
+        functionalities.append('bmake')
     if (useSnakeMake):
-        functionalities.insert('snakemake')
+        functionalities.append('snakemake')
     if (useMake):
-        functionalities.insert('make')
+        functionalities.append('make')
     projectName = projectName_
     versionN = projectVersion_
     basePath = os.path.join(os.getcwd(), projectName)
@@ -176,11 +175,11 @@ def parseArguments():
     args = parser.parse_args()
     useBMake = args.bmake; useSnakeMake = args.snakemake; useMake = args.make
     if (useBMake):
-        functionalities.insert('bmake')
+        functionalities.append('bmake')
     if (useSnakeMake):
-        functionalities.insert('snakemake')
+        functionalities.append('snakemake')
     if (useMake):
-        functionalities.insert('make')
+        functionalities.append('make')
     projectName = args.projectname[0]
     versionN = args.projectversion[0]
     basePath = os.path.join(os.getcwd(), projectName)
