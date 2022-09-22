@@ -1,8 +1,8 @@
 import os
 from sys import exit
-basePath
-currentVPath
-newVPath
+basePath = ""
+currentVPath = ""
+newVPath = ""
 
 def makeLink(sourcePath, destinationPath):
     os.symlink(sourcePath, destinationPath)
