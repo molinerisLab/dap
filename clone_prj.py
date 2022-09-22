@@ -17,10 +17,10 @@ def findPaths(sourceVersion, destinationVersion):
     global basePath; global currentVPath; global newVPath
     current = os.getcwd()
     for i in range(3):
-        if (os.path.isDir(os.path.join(current, "dataset"))):
+        if (os.path.isdir(os.path.join(current, "dataset"))):
             basePath = current 
             newVPath = os.path.join(basePath, "dataset", destinationVersion)
-            if (os.path.isDir(os.path.join(basePath, "dataset", sourceVersion))):
+            if (os.path.isdir(os.path.join(basePath, "dataset", sourceVersion))):
                 currentVPath = os.path.join(basePath, "dataset", sourceVersion)
                 return
             else :
