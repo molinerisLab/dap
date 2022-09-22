@@ -1,5 +1,4 @@
 import os
-import string
 import argparse
 
 #Variabili da inizializzare con argomenti
