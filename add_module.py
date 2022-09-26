@@ -13,24 +13,9 @@ def clone(R_Url, path):
             return repo.working_tree_dir
         exit("Could not clone git repo")
 
-#Temp - versione di clone che non richiede librerie esterne
-"""def clone(R_Url, path):
-    executionDir = os.getcwd()
-    os.chdir(path)
-    files = os.listdir(path)
-    os.system("git clone " + R_Url)
-    os.chdir(executionDir)
-    newFiles = os.listdir(path)
-    created = list(set(newFiles).difference(set(files)))
-    if (created.length == 0):
-        exit("Repository could not be cloned")
-    for file in created:
-        if os.path.isdir(file):
-            return file 
-    exit("Error cloning repository")"""
 
 def add_module(projectRoot, R_Url, versionPath, moduleVersion):
-    #verifica esistenza di projectRoot e di versionPath
+    projectRoot = os.path.abspath(projectRoot)
     versionPath = os.path.join(projectRoot, versionPath)
     print(versionPath)
     if (not os.path.isdir(projectRoot)):

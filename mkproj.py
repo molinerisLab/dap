@@ -18,6 +18,7 @@ baseDirectories = [
 
 #Files da copiare nel progetto. destination relativa a basePath; file di origine devono essere nella cartella model
 filesToCopy = [
+    ['.gitignore', '.gitignore'],
     ['.envrc', '.envrc']
 ]
 #Files da creare, path relativi a basePath
@@ -83,6 +84,8 @@ def copyFile(sourcePath, destinationPath):
             for line in source:
                 dest.write(line)
 
+def removeBasePathPrefix(path):
+    return os.path.relpath(path, start=basePath)
 
 def execute():
     for functionality in functionalities:
@@ -118,11 +121,7 @@ def execute():
     for functionality in functionalities:
         for fileToLink in filesToLinkVersionSpecific[functionality]:
             makeLink(fileToLink[0] + "_" + versionN + fileToLink[2], fileToLink[1])
-    #Crea .gitignore che ignora tutta la dataset eccetto i link simbolici
-    with open(os.path.join(basePath, '.gitignore'), 'w') as gitignore:
-        gitignore.write("dataset/*")
-        for link in filesToLink:
-            gitignore.write("!" + link[1])
+     
     #Crea repo git
     executionDir = os.getcwd()
     os.chdir(basePath)
