@@ -1,8 +1,20 @@
 import os
 from sys import exit
+from git import Repo
+
 
 
 def clone(R_Url, path):
+    repo = Repo.clone_from(R_Url, path)
+    if (repo):
+        print(repo.git_dir)
+        print(repo.working_tree_dir)
+        if (os.path.isdir(repo.git_dir)):
+            return repo.git_dir
+        exit("Could not clone git repo")
+
+#Temp - versione di clone che non richiede librerie esterne
+"""def clone(R_Url, path):
     executionDir = os.getcwd()
     os.chdir(path)
     files = os.listdir(path)
@@ -13,9 +25,9 @@ def clone(R_Url, path):
     if (created.length == 0):
         exit("Repository could not be cloned")
     for file in created:
-        if os.isdir(file):
+        if os.path.isdir(file):
             return file 
-    exit("Error cloning repository")
+    exit("Error cloning repository")"""
 
 def add_module(projectRoot, R_Url, versionPath, moduleVersion):
     #verifica esistenza di projectRoot e di versionPath

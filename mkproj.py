@@ -1,5 +1,6 @@
 import os
 import argparse
+from sys import exit
 
 #Variabili da inizializzare con argomenti
 basePath =  os.getcwd()
@@ -92,6 +93,8 @@ def execute():
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
         
     #Crea cartella per progetto
+    if (os.path.isdir(basePath)):
+        exit("Target project folder already exists.")
     os.makedirs(basePath, exist_ok=True)
     makeFolder("dataset/"+versionN)
 
