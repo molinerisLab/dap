@@ -52,7 +52,7 @@ filesToLink = {
 #Link. Path source relativo a basePath ma con aggiunta di _versionN
 #es local/rules/makefile -> local/rules/makefile_V1
 filesToLinkVersionSpecific = {
-    'default': [['source', 'dest', 'sourceFormat']],
+    'default':[], #[['source', 'dest', 'sourceFormat']],
     'make': [
         ['local/config/makefile', 'config', '']
     ],
@@ -103,7 +103,7 @@ def execute():
         makeFolder(directory)
     #Copia i file di default nelle directory create 
     for fileToCopy in filesToCopy:
-        copyFile(os.path.join(os.getcwd(), "model" ,fileToCopy[0]), fileToCopy[1])
+        copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
     #Crea i file da creare nuovi
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:

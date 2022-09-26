@@ -30,25 +30,33 @@ def findPaths(sourceVersion, destinationVersion):
 
 def cloneVersion(sourceVersion, destinationVersion):
     findPaths(sourceVersion, destinationVersion)
+    print("Current v. path: " + currentVPath)
+    print("New V path: " + newVPath)
     #crea cartella per nuova versione
     os.makedirs(newVPath, exist_ok = True)
     #elenca link simbolici nella cartella vecchia versione
     links = []
     for link in os.listdir(currentVPath):
-        if (os.path.islink(link)):
-            links.append(link)
+        link_ = os.path.join(currentVPath, link)
+        print("File: "); print(link)
+        if (os.path.islink(link_)):
+            print("Islink");
+            links.append(link_)
+        else:
+            print("Not a link, sorry")
     #crea copia di ogni file in local/
     for link in links:
-        realPath =  os.listdir(link)
+        realPath =  os.path.realpath(link)
         fileName = os.path.basename(realPath)
-        if (fileName.endwith("_"+sourceVersion)):
-            newFilename = fileName.removesuffix(sourceVersion) + destinationVersion
+        n = os.path.splitext(fileName)
+        if (n[0].endswith("_"+sourceVersion)):
+            newFilename = n[0].removesuffix(sourceVersion) + destinationVersion + n[1]
+            newFilePath = os.path.join(os.path.dirname(realPath), newFilename)
+            copyFile(realPath, newFilePath)
+            makeLink(newFilePath, os.path.join(newVPath, os.path.basename(link)))
         else :
-            newFilename = fileName + "_" + destinationVersion
-        newFilePath = os.path.join(os.path.dirname(realPath), newFilename)
-        copyFile(realPath, newFilePath)
-        makeLink(newFilePath, os.path.join(newVPath, os.path.basename(link)))
-
+            #newFilename = n[0] + "_" + destinationVersion + n[1] 
+            makeLink(realPath, os.path.join(newVPath, os.path.basename(link)))
 
 def main():
     print("Clone prj")
