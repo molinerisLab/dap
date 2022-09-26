@@ -72,8 +72,18 @@ def makeFile(path):
     with open(os.path.join(basePath, path), 'w') as f:
         f.write(' ')
 
+def getRelativePath(path, fromPath):
+    return os.path.relpath(path, start=fromPath)
+
 def makeLink(sourcePath, destinationPath):
-    os.symlink(os.path.join(basePath, sourcePath), os.path.join(basePath, destinationPath))
+    sourcePath = os.path.join(basePath, sourcePath)
+    destinationPath = os.path.join(basePath, destinationPath)
+    os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
+    #Aggiunge a git nonostante gitignore
+    executionDir = os.getcwd()
+    os.chdir(basePath)
+    os.system("git add -f {}".format(destinationPath))
+    os.chdir(executionDir)
 
 #Copiare il file leggendo riga per riga non è molto efficiente
 #però evita di dover importare librerie esterne e rende un po' più snello il progetto
@@ -84,8 +94,6 @@ def copyFile(sourcePath, destinationPath):
             for line in source:
                 dest.write(line)
 
-def removeBasePathPrefix(path):
-    return os.path.relpath(path, start=basePath)
 
 def execute():
     for functionality in functionalities:
@@ -100,6 +108,12 @@ def execute():
         exit("Target project folder already exists.")
     os.makedirs(basePath, exist_ok=True)
     makeFolder("dataset/"+versionN)
+
+    #Crea repo git
+    executionDir = os.getcwd()
+    os.chdir(basePath)
+    os.system("git init")
+    os.chdir(executionDir)
 
     #Crea le directory
     for directory in baseDirectories:
@@ -122,10 +136,12 @@ def execute():
         for fileToLink in filesToLinkVersionSpecific[functionality]:
             makeLink(fileToLink[0] + "_" + versionN + fileToLink[2], fileToLink[1])
      
-    #Crea repo git
+    #CONDA: crea environment; GIT: Aggiunge file ed esegue commit
     executionDir = os.getcwd()
     os.chdir(basePath)
-    os.system("git init")
+    os.system("conda create -n $(basename $PWD)Env")
+    os.system("conda activate $(basename $PWD)Env")
+    os.system("conda env export > local/env/environment.yml")
     os.system("git add .")
     os.system("git commit -m \"project created\"")
     os.chdir(executionDir)
@@ -185,6 +201,7 @@ def parseArguments():
     projectName = args.projectname[0]
     versionN = args.projectversion[0]
     basePath = os.path.join(os.getcwd(), projectName)
+
 
 def main():
     #Inizializza variabili da argomenti
