@@ -9,6 +9,7 @@ versionN = ""
 functionalities = ['default']
 useMake = False; useBMake = False; useSnakeMake = True
 
+
 #Scheletro delle cartelle del progetto - relative a basePath
 baseDirectories = [
         'dataset/',
@@ -73,6 +74,7 @@ def makeFile(path):
         f.write(' ')
 
 def getRelativePath(path, fromPath):
+    fromPath = os.path.split(fromPath)[0]
     return os.path.relpath(path, start=fromPath)
 
 def makeLink(sourcePath, destinationPath):
@@ -139,6 +141,8 @@ def execute():
     #CONDA: crea environment; GIT: Aggiunge file ed esegue commit
     executionDir = os.getcwd()
     os.chdir(basePath)
+    os.system("CONDA_BASE=$(conda info --base)")
+    os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
     os.system("conda create -n $(basename $PWD)Env")
     os.system("conda activate $(basename $PWD)Env")
     os.system("conda env export > local/env/environment.yml")

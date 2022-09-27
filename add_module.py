@@ -13,8 +13,18 @@ def clone(R_Url, path):
             return repo.working_tree_dir
         exit("Could not clone git repo")
 
+
 def getRelativePath(path, fromPath):
+    fromPath = os.path.split(fromPath)[0]
     return os.path.relpath(path, start=fromPath)
+
+def makeLink(sourcePath, destinationPath):
+    os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
+    #Aggiunge a git nonostante gitignore
+    executionDir = os.getcwd()
+    os.chdir(projBasePath)
+    os.system("git add -f {}".format(destinationPath))
+    os.chdir(executionDir)
 
 def makeLinks(newModulePath, versionPath):
     for file in os.listdir(newModulePath):
@@ -23,7 +33,7 @@ def makeLinks(newModulePath, versionPath):
             os.makedirs(os.path.join(versionPath, file), exist_ok=True)
             makeLinks(file_, os.path.join(versionPath, file))
         else :
-            os.symlink(getRelativePath(file_), os.path.join(versionPath, os.path.basename(file)))
+            makeLink(file_,  os.path.join(versionPath, os.path.basename(file)))
             #Aggiunge a git nonostante gitignore
             executionDir = os.getcwd()
             os.chdir(projBasePath)
@@ -37,17 +47,14 @@ def add_module(R_Url, versionPath, moduleVersion):
         exit("Could not find base project directory")
         
     versionPath = os.path.join(projBasePath, versionPath)
-    print(versionPath)
     if (not os.path.isdir(projBasePath)):
         exit("Project root does not exist")
     if (not os.path.isdir(versionPath)):
         exit("Version path does not exist")
     #clona repo
     newModule = clone(R_Url, os.path.join(projBasePath, "local", "modules"))
-    print(newModule)
     #recupera path con link da copiare
     newModulePath = os.path.join(newModule, "dataset", moduleVersion)
-    print("New module target directory: " + newModulePath)
     if (not os.path.exists(newModulePath)):
         os.system("rm -rf " + newModule)
         exit("Module does not contain dataset/"+moduleVersion)
