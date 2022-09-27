@@ -1,17 +1,24 @@
 import os
 from sys import exit
-from git import Repo
+from git import Repo, Submodule
 
 projBasePath = ''
 
 def clone(R_Url, path):
-    rPath = os.path.join(path ,R_Url.split("/")[-1])
+    repoName = R_Url.split("/")[-1]
+    rPath = os.path.join(path ,repoName)
     os.makedirs(rPath, exist_ok = True)
-    repo = Repo.clone_from(R_Url, rPath)
-    if (repo):
-        if (os.path.isdir(repo.working_tree_dir)):
-            return repo.working_tree_dir
-        exit("Could not clone git repo")
+    repo = Repo(projBasePath)
+    Submodule.add(repo, repoName, rPath, R_Url)
+    if (os.path.isdir(os.path.join(rPath, "dataset"))):
+        return rPath
+    #Se no errore
+    executionDir = os.getcwd()
+    os.chdir(projBasePath)
+    os.system("git rm --cached {}".format(rPath))
+    os.chdir(executionDir)
+    exit("Could not clone repository, or repository is not compliant")
+
 
 
 def getRelativePath(path, fromPath):
