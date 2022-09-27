@@ -4,18 +4,26 @@ from git import Repo, Submodule
 
 projBasePath = ''
 
-def clone(R_Url, path):
+def clone(R_Url, path, moduleVersion):
     repoName = R_Url.split("/")[-1]
     rPath = os.path.join(path ,repoName)
+    #Repo potrebbe già esserci - effettua controllo
+    if (os.path.isdir(rPath)):
+        if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
+            return rPath
+        else:
+            exit("Repository does not contain version {}".format(moduleVersion))
+
     os.makedirs(rPath, exist_ok = True)
     repo = Repo(projBasePath)
     Submodule.add(repo, repoName, rPath, R_Url)
-    if (os.path.isdir(os.path.join(rPath, "dataset"))):
+    if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
         return rPath
     #Se no errore
     executionDir = os.getcwd()
     os.chdir(projBasePath)
-    os.system("git rm --cached {}".format(rPath))
+    os.system("git rm {}".format(rPath))
+    os.system("git commit -m \"Failed to add module {}\"".format(repoName))
     os.chdir(executionDir)
     exit("Could not clone repository, or repository is not compliant")
 
@@ -59,12 +67,9 @@ def add_module(R_Url, versionPath, moduleVersion):
     if (not os.path.isdir(versionPath)):
         exit("Version path does not exist")
     #clona repo
-    newModule = clone(R_Url, os.path.join(projBasePath, "local", "modules"))
+    newModule = clone(R_Url, os.path.join(projBasePath, "local", "modules"), moduleVersion)
     #recupera path con link da copiare
     newModulePath = os.path.join(newModule, "dataset", moduleVersion)
-    if (not os.path.exists(newModulePath)):
-        os.system("rm -rf " + newModule)
-        exit("Module does not contain dataset/"+moduleVersion)
     os.makedirs(os.path.join(versionPath, os.path.basename(newModule)), exist_ok = True)
     versionPath = os.path.join(versionPath, os.path.basename(newModule))
     os.makedirs(versionPath, exist_ok = True)

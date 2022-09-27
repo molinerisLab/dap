@@ -144,7 +144,6 @@ def execute():
     os.system("CONDA_BASE=$(conda info --base)")
     os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
     os.system("conda create -n $(basename $PWD)Env")
-    os.system("conda activate $(basename $PWD)Env")
     os.system("conda env export > local/env/environment.yml")
     os.system("git add .")
     os.system("git commit -m \"project created\"")
