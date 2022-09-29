@@ -4,6 +4,7 @@ from git import Repo, Submodule
 
 projBasePath = ''
 
+#Clona repo (se non esiste già), verifica esistenza di dataset/{moduleVersion} e restituisce path
 def clone(R_Url, path, moduleVersion):
     repoName = R_Url.split("/")[-1]
     rPath = os.path.join(path ,repoName)
@@ -19,7 +20,7 @@ def clone(R_Url, path, moduleVersion):
     Submodule.add(repo, repoName, rPath, R_Url)
     if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
         return rPath
-    #Se no errore
+    #Se no errore - prima annulla lavoro fatto per clonare modulo
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git rm {}".format(rPath))
@@ -41,10 +42,12 @@ def makeLink(sourcePath, destinationPath):
     os.system("git add -f {}".format(destinationPath))
     os.chdir(executionDir)
 
+#Crea link da local/modules/{moduleName}/{moduleVersion} a cartella dataset
 def makeLinks(newModulePath, versionPath):
     for file in os.listdir(newModulePath):
         file_ = os.path.join(newModulePath, file)
         if (os.path.isdir(file_)):
+            #Se path è cartella, crea cartella in dataset/{..} e ricorsivamente crea link per contenuto cartella
             os.makedirs(os.path.join(versionPath, file), exist_ok=True)
             makeLinks(file_, os.path.join(versionPath, file))
         else :

@@ -98,6 +98,7 @@ def copyFile(sourcePath, destinationPath):
 
 
 def execute():
+    #Aggiorna path per i link aggiungendo dataset/{versione}
     for functionality in functionalities:
         for link in filesToLink[functionality]:
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
