@@ -18,10 +18,16 @@ baseDirectories = [
     ]
 
 #Files da copiare nel progetto. destination relativa a basePath; file di origine devono essere nella cartella model
-filesToCopy = [
-    ['.gitignore', '.gitignore'],
-    ['.envrc', '.envrc']
-]
+filesToCopy = {
+    'default': [
+        ['.gitignore', '.gitignore'],
+        ['.envrc', '.envrc']
+    ],
+    'make': [],
+    'snakemake': [],
+    'bmake': []
+}
+ 
 #Files da creare, path relativi a basePath
 filesToCreate = {
     'default': [],
@@ -34,7 +40,7 @@ filesToCreate = {
 filesToCreateVersionSpecific = {
     'default': [],
     'make': [
-        ['local/config/makefile', '']
+        ['local/config/config', '']
     ],
     'snakemake': [
         ['local/config/config', '.yaml']
@@ -56,7 +62,7 @@ filesToLink = {
 filesToLinkVersionSpecific = {
     'default':[], #[['source', 'dest', 'sourceFormat']],
     'make': [
-        ['local/config/makefile', 'config', '']
+        ['local/config/config', 'config', '']
     ],
     'snakemake': [
         ['local/config/config', 'config' , '.yaml']
@@ -122,8 +128,9 @@ def execute():
     for directory in baseDirectories:
         makeFolder(directory)
     #Copia i file di default nelle directory create 
-    for fileToCopy in filesToCopy:
-        copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
+    for functionality in functionalities:
+        for fileToCopy in filesToCopy[functionality]:
+            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
     #Crea i file da creare nuovi
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
