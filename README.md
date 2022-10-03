@@ -13,6 +13,7 @@ dap create crea un nuovo progetto nella directory corrente; inizializza reposito
 * ProjectName: nome del progetto, che corrisponderà alla directory creata e al nome del repository git inizializzato.
 * ProjectVersion: versione iniziale del progetto; viene creata cartella dataset/{ProjectVersion}.
 * [--usesnakemake]: inizializza progetto con file necessari per usare snakemake. Default: **True**.
+* [--no-usesnakemake]: sovrascrive regola di default per creare file necessari a snakemake.
 * [--usemake --usebmake]: inizializza progetto con file necessari per usare makefile o bmake. Default: **False**.
 
 ## dap clone

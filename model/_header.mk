@@ -1,5 +1,5 @@
 
-.bmake/config.mk: config.mk ; @bmake-filter -o --ignore-global-rules  < $< > $@
+.bmake/config.mk: config_bmake.mk ; @bmake-filter -o --ignore-global-rules  < $< > $@
 -include .bmake//config.mk 
 #-include ignore che include if the file does not exists
 
