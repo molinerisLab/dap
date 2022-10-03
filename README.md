@@ -1,45 +1,45 @@
 # dap
-Il tool fornisce tre comandi:
+The tool provides three commands:
 * dap create
 * dap clone
 * dap addmodule
 
-È possibile utilizzare l'help con 
+Help is provided by this command:
 `dap --help`
 
 ## dap create
-dap create crea un nuovo progetto nella directory corrente; inizializza repository git e crea ambiente conda.
-### comandi
+dap create creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
+### commands
 `dap create [--usesnakemake --usemake --usebmake] ProjectName ProjectVersion`
-* ProjectName: nome del progetto, che corrisponderà alla directory creata e al nome del repository git inizializzato.
-* ProjectVersion: versione iniziale del progetto; viene creata cartella dataset/{ProjectVersion}.
-* [--usesnakemake]: inizializza progetto con file necessari per usare snakemake. Default: **True**.
-* [--no-usesnakemake]: sovrascrive regola di default per creare file necessari a snakemake.
-* [--usemake --usebmake]: inizializza progetto con file necessari per usare makefile o bmake. Default: **False**.
+* ProjectName: the name of the project, which will correspond to the directory and the git repository created.
+* ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created.
+* [--usesnakemake]: creates the project with the files needed in order to use Snakemake. Default: **True**.
+* [--no-usesnakemake]: overrides default rule and does not create Snakemake files.
+* [--usemake --usebmake]: creates the project with the files needed in order to use Make or BMake... Default: **False**.
 
 ## dap clone
-Crea una nuova versione del progetto clonando una versione esistente.
-Deve essere eseguito all'interno della directory del progetto.
-### comandi
+It creates a new version of the project, cloning an existing one.
+It must be executed inside the project directory.
+### commands
 `dap clone SourceVersion NewVersion`
-* SourceVersion: Nome della versione del progetto.
-* NewVersion: Nome della nuova versione del progetto.
+* SourceVersion: Name of the version to be cloned.
+* NewVersion: Name of the new version.
 
-Il comando crea una nuova directory *PRJ_ROOT/dataset/{NewVersion}*. In questa, per ogni link contenuto in *PRJ_ROOT/dataset{SourceVersion}*:
-* Se il link si riferisce ad un file non versionato: copia il link
-* Se il link si riferisce ad un file versionato: genera nuova copia del file versionato nella directory originale e aggiunge link nella directory della versione.
-**Per convenzione i file versionati terminano per _{VersionName}.**
+The command creates a new directory  *PRJ_ROOT/dataset/{NewVersion}*. Here, for each link inside *PRJ_ROOT/dataset{SourceVersion}*:
+* If the link refers to a non-version specific file: it copies the link.
+* If the link refers to a version specific file: it creates a copy of the file and adds a link to the new one in the version directory.
+**By convention, version specific files' names end with _{VersionName}.**
 
 ## dap addmodule
-Importa un progetto esterno all'interno del progetto corrente come modulo, clonandolo da un repository remoto.
-Il modulo viene aggiunto come inner repository al repository del progetto.
-### comandi
+It imports an external project inside the current project as a module, cloning it from a remote repository. 
+The module is added as an sub-module in git.
+### commands
 `dap addmodule RepoUrl ProjectVersion ModuleVersion`
-* RepoUrl: URL del repository remoto.
-* ProjectVersion: path della directory dell versione del progetto all'interno della quale si vuole importare il modulo, relativo a PRJ_ROOT. Per la struttura generale dei progetti dev'essere un path del tipo **dataset/{ProjectVersion}**
-* ModuleVersion: nome della versione del modulo che vogliamo importare.
+* RepoUrl: URL of the remote repository.
+* ProjectVersion: path to the directory containing the project's version where you want to import the module, relative to PRJ_ROOT. In most cases it's a path structured as **dataset/{ProjectVersion}**
+* ModuleVersion: name of the module's version we want to import.
 
-### Progetto conforme
-Il progetto da importare come modulo deve essere conforme alla struttura dei progetti generati con dap. In particolare deve contenere la directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*
+### Compliance of the project
+The project to be imported as a module must be compliant with the structure of the projects created with **dap**. It must contain the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*.
 
-Il comando, per ogni link simbolico nella directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*, crea un link simbolico nella directory *PRJ_ROOT/{ProjectVersion}/{ModuleName}*
+The command, for each symbolic link inside the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}* creates a symbolic link in the directory *PRJ_ROOT/{ProjectVersion}/{ModuleName}* pointing to the same file.
