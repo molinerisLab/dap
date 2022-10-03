@@ -1,5 +1,4 @@
 import os
-import argparse
 from sys import exit
 
 #Variabili da inizializzare con argomenti
@@ -18,37 +17,53 @@ baseDirectories = [
     ]
 
 #Files da copiare nel progetto. destination relativa a basePath; file di origine devono essere nella cartella model
-filesToCopy = [
-    ['.gitignore', '.gitignore'],
-    ['.envrc', '.envrc']
-]
+filesToCopy = {
+    'default': [
+        ['.gitignore', '.gitignore'],
+        ['.envrc', '.envrc']
+    ],
+    'makeOrBmake': [
+        ['makefile', 'local/rules/makefile'],
+        ['_footer.mk', 'local/rules/_footer.mk'],
+        ['_header.mk', 'local/rules/_header.mk']
+    ],
+    'make': [],
+    'snakemake': [],
+    'bmake': []
+}
+ 
 #Files da creare, path relativi a basePath
 filesToCreate = {
     'default': [],
-    'make': ['local/rules/makefile'],
+    'make': [],
     'snakemake': ['local/rules/Snakefile.mk'],
-    'bmake': ['local/rules/rules.mk']
+    'bmake': ['local/rules/bmakefile'],
+    'makeOrBmake': []
 }
 #Files da creare, path relativi a basePath - al cui nome viee aggiunto _versionN
 #es da local/src/esempio.txt a local/src/esempio_V1.txt
 filesToCreateVersionSpecific = {
     'default': [],
     'make': [
-        ['local/config/makefile', '']
+        ['local/config/config', '.mk']
     ],
     'snakemake': [
         ['local/config/config', '.yaml']
     ],
     'bmake': [
-        ['local/config/config', '.sk']
-    ]
+        ['local/config/config_bmake', '.mk']
+    ],
+    'makeOrBmake': []
 }
 #Link. Path source relativo a basePath - dest relativo a dataset/{projectVersion}
 filesToLink = {
     'default': [], #[ ['source', 'dest']],
-    'make': [['local/rules/makefile', 'makefile']],
-    'snakemake': [['local/rules/Snakefile.mk', 'cluster.yaml']],
-    'bmake': [['local/rules/rules.mk','config.sk']]
+    'makeOrBmake': [
+        ['local/rules/makefile', 'makefile']
+    ],
+    'bmake': [ ['local/rules/bmakefile', 'bmakefile'] ],
+    'make': [],
+    'snakemake': [['local/rules/Snakefile.mk', 'cluster.yaml']]
 }
 
 #Link. Path source relativo a basePath ma con aggiunta di _versionN
@@ -56,14 +71,15 @@ filesToLink = {
 filesToLinkVersionSpecific = {
     'default':[], #[['source', 'dest', 'sourceFormat']],
     'make': [
-        ['local/config/makefile', 'config', '']
+        ['local/config/config', 'config.mk', '.mk']
     ],
     'snakemake': [
         ['local/config/config', 'config' , '.yaml']
     ],
     'bmake': [
-        ['local/config/config', 'config', '.sk']
-    ]
+        ['local/config/config_bmake', 'config_bmake.mk', '.mk']
+    ],
+    'makeOrBmake': []
 }
 
 def makeFolder(path):
@@ -98,6 +114,7 @@ def copyFile(sourcePath, destinationPath):
 
 
 def execute():
+    #Aggiorna path per i link aggiungendo dataset/{versione}
     for functionality in functionalities:
         for link in filesToLink[functionality]:
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
@@ -121,8 +138,9 @@ def execute():
     for directory in baseDirectories:
         makeFolder(directory)
     #Copia i file di default nelle directory create 
-    for fileToCopy in filesToCopy:
-        copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
+    for functionality in functionalities:
+        for fileToCopy in filesToCopy[functionality]:
+            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
     #Crea i file da creare nuovi
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
@@ -157,13 +175,15 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
     global functionalities
     global useMake; global useBMake; global useSnakeMake
 
-    useBMake = useMake_; useSnakeMake = useSnakeMake_; useMake = useBMake_
+    useBMake = useBMake_; useSnakeMake = useSnakeMake_; useMake = useMake_
     if (useBMake):
         functionalities.append('bmake')
     if (useSnakeMake):
         functionalities.append('snakemake')
     if (useMake):
         functionalities.append('make')
+    if (useMake or useBMake):
+        functionalities.append('makeOrBmake')
     projectName = projectName_
     versionN = projectVersion_
     basePath = os.path.join(os.getcwd(), projectName)
@@ -171,45 +191,8 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
 
 
 
-#Per esecuzione di mkproj come standalone
-def parseArguments():
-    global basePath
-    global projectName
-    global versionN
-    global functionalities
-    global useMake; global useBMake; global useSnakeMake;
-
-    parser = argparse.ArgumentParser(description='Create the local/ directory structure for a prj and a skeleton based on prjname and version')
-    parser.add_argument('projectname', metavar='PROJ_NAME', type=str, nargs=1,
-                    help='Name of the project to create')
-    parser.add_argument('projectversion', metavar='PROJ_VERSION', type=str, nargs=1,
-                    help='Version of the project - es. V1')
-
-    parser.add_argument('--make', dest='make', const=True, default=False, nargs='?',
-                    help='Generate makefile files')
-    parser.add_argument('--bmake', dest='bmake', const=True, default=False, nargs='?',
-                    help='Generate bmakefile files')
-    parser.add_argument('--snakemake', dest='snakemake', const=True, default=True, nargs='?',
-                    help='Generate Snakemake files')
-
-
-    args = parser.parse_args()
-    useBMake = args.bmake; useSnakeMake = args.snakemake; useMake = args.make
-    if (useBMake):
-        functionalities.append('bmake')
-    if (useSnakeMake):
-        functionalities.append('snakemake')
-    if (useMake):
-        functionalities.append('make')
-    projectName = args.projectname[0]
-    versionN = args.projectversion[0]
-    basePath = os.path.join(os.getcwd(), projectName)
-
-
 def main():
-    #Inizializza variabili da argomenti
-    parseArguments()
-    execute()
+    print('Mkproj')
     
 
 if __name__ == '__main__':
