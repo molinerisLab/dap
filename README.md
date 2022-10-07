@@ -13,9 +13,24 @@ dap create creates a new project in the current working directory; it initiates 
 `dap create [--usesnakemake --usemake --usebmake] ProjectName ProjectVersion`
 * ProjectName: the name of the project, which will correspond to the directory and the git repository created.
 * ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created.
-* [--usesnakemake]: creates the project with the files needed in order to use Snakemake. Default: **True**.
-* [--no-usesnakemake]: overrides default rule and does not create Snakemake files.
-* [--usemake --usebmake]: creates the project with the files needed in order to use Make or BMake... Default: **False**.
+* [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
+###Example of directory tree created with Snakemake template:
+```
+ProjectName
+├── dataset
+│   ├── ProjectVersion
+│   │   ├── Snakefile
+│   │   ├── config.yaml
+│   │   ├── Snakefile_versioned.sk
+├── local
+│   ├── src
+│   ├── bin
+│   ├── env
+│   ├── rules
+│   ├── config
+│   ├── data
+│   ├── modules
+```
 
 ## dap clone
 It creates a new version of the project, cloning an existing one.
