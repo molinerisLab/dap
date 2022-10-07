@@ -12,7 +12,7 @@ projBasePath = ''
 def clone(R_Url, path, moduleVersion):
     repoName = R_Url.split("/")[-1]
     if (repoName.endswith('.git')):
-        repoName = removeSuffix(repoName, '.git')
+        repoName = repoName.removesuffix('.git')
     rPath = os.path.join(path ,repoName)
     #Repo could exist already
     if (os.path.isdir(rPath)):
