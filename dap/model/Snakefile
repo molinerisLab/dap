@@ -2,5 +2,5 @@ import os
 
 configfile: "config.yaml"
 
-if os.path.exists("snakefile_versioned.sk"):
-    include "snakefile_versioned.sk"
+if os.path.exists("Snakefile_versioned.sk"):
+    include "Snakefile_versioned.sk"

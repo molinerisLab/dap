@@ -14,6 +14,7 @@ setup(name='dap',
         'model/_header.mk',
         'model/.envrc',
         'model/.gitignore',
-        'model/makefile'
+        'model/makefile',
+        'model/Snakefile'
         ]}
       )

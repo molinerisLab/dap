@@ -49,8 +49,7 @@ filesToCreateVersionSpecific = {
     ],
     'snakemake': [
         ['local/config/config', '.yaml'],
-        ['local/config/config', '.sk'],
-        ['local/config/snakefile_versioned','.sk']
+        ['local/config/Snakefile_versioned','.sk']
     ],
     'bmake': [
         ['local/config/config_bmake', '.mk'], ['local/config/bmakefile_versioned', '.mk']
@@ -78,8 +77,7 @@ filesToLinkVersionSpecific = {
     ],
     'snakemake': [
         ['local/config/config', 'config.yaml' , '.yaml'], 
-        ['local/config/config', 'config.sk', '.sk'],
-        ['local/config/snakefile_versioned', 'snakefile_versioned.sk', '.sk']
+        ['local/config/Snakefile_versioned', 'Snakefile_versioned.sk', '.sk']
     ],
     'bmake': [
         ['local/config/config_bmake', 'config_bmake.mk', '.mk'], ['local/config/bmakefile_versioned', 'bmakefile_versioned.mk', '.mk']

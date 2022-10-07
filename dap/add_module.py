@@ -4,7 +4,7 @@ from git import Repo, Submodule
 
 projBasePath = ''
 
-#Eliminare il .git nella directory creata
+
 #Se eccezione a livello di bash -> rimettere tutto a posto
 #Far andare link direttamente a local
 
