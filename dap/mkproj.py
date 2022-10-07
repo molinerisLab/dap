@@ -1,7 +1,7 @@
 import os
 from sys import exit
 
-#Variabili da inizializzare con argomenti
+
 basePath =  os.getcwd()
 projectName = ""
 versionN = ""
@@ -9,14 +9,14 @@ functionalities = ['default']
 useMake = False; useBMake = False; useSnakeMake = True
 
 
-#Scheletro delle cartelle del progetto - relative a basePath
+#Base folder tree to be created - all paths relative to PRJ_PATH
 baseDirectories = [
         'dataset/',
         'local/bin', 'local/src/', 'local/env', 'local/rules',
         'local/config/', 'local/data/', 'local/modules',
     ]
 
-#Files da copiare nel progetto. destination relativa a basePath; file di origine devono essere nella cartella model
+#Files to be copied in the project. Destination is relative to PRJ_PATH; source files most be inside the model folder.
 filesToCopy = {
     'default': [
         ['.gitignore', '.gitignore'],
@@ -32,52 +32,57 @@ filesToCopy = {
     'bmake': []
 }
  
-#Files da creare, path relativi a basePath
+#Files to be created, paths relative to PRJ_PATH
 filesToCreate = {
     'default': [],
     'make': [],
-    'snakemake': ['local/rules/Snakefile.mk'],
-    'bmake': ['local/rules/bmakefile'],
+    'snakemake': ['local/rules/Snakefile'],
+    'bmake': ['local/rules/bmakefile.mk'],
     'makeOrBmake': []
 }
-#Files da creare, path relativi a basePath - al cui nome viee aggiunto _versionN
-#es da local/src/esempio.txt a local/src/esempio_V1.txt
+#Files to be created, paths relative to PRJ_PATH, where '_{versionName}' is added.
+#i.e. local/src/example.txt a local/src/example_V1.txt
 filesToCreateVersionSpecific = {
     'default': [],
     'make': [
-        ['local/config/config', '.mk']
+        ['local/config/config', '.mk'], ['local/config/makefile_versioned', '.mk']
     ],
     'snakemake': [
-        ['local/config/config', '.yaml']
+        ['local/config/config', '.yaml'],
+        ['local/config/config', '.sk'],
+        ['local/config/snakefile_versioned','.sk']
     ],
     'bmake': [
-        ['local/config/config_bmake', '.mk']
+        ['local/config/config_bmake', '.mk'], ['local/config/bmakefile_versioned', '.mk']
     ],
     'makeOrBmake': []
 }
-#Link. Path source relativo a basePath - dest relativo a dataset/{projectVersion}
+#Sym links. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
 filesToLink = {
-    'default': [], #[ ['source', 'dest']],
+    'default': [], 
     'makeOrBmake': [
         ['local/rules/makefile', 'makefile']
     ],
     'bmake': [ ['local/rules/bmakefile', 'bmakefile'] ],
     'make': [],
-    'snakemake': [['local/rules/Snakefile.mk', 'cluster.yaml']]
+    'snakemake': [['local/rules/Snakefile.mk', 'Snakefile']]
 }
 
-#Link. Path source relativo a basePath ma con aggiunta di _versionN
-#es local/rules/makefile -> local/rules/makefile_V1
+#Sym links for version specific files. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
+#to source path '_{versionName}' is added.
+#[['source', 'dest', 'sourceFormat']],
 filesToLinkVersionSpecific = {
-    'default':[], #[['source', 'dest', 'sourceFormat']],
+    'default':[], 
     'make': [
-        ['local/config/config', 'config.mk', '.mk']
+        ['local/config/config', 'config.mk', '.mk'], ['local/config/makefile_versioned', 'makefile_versioned.mk', '.mk']
     ],
     'snakemake': [
-        ['local/config/config', 'config' , '.yaml']
+        ['local/config/config.yaml', 'config.yaml' , '.yaml'], 
+        ['local/config/config', 'config.sk', '.sk'],
+        ['local/config/snakefile_versioned', 'snakefile_versioned.sk', '.sk']
     ],
     'bmake': [
-        ['local/config/config_bmake', 'config_bmake.mk', '.mk']
+        ['local/config/config_bmake', 'config_bmake.mk', '.mk'], ['local/config/bmakefile_versioned', 'bmakefile_versioned.mk', '.mk']
     ],
     'makeOrBmake': []
 }
@@ -103,10 +108,10 @@ def makeLink(sourcePath, destinationPath):
     os.system("git add -f {}".format(destinationPath))
     os.chdir(executionDir)
 
-#Copiare il file leggendo riga per riga non è molto efficiente
-#però evita di dover importare librerie esterne e rende un po' più snello il progetto
+
+#Copies a file - not very efficient way to do so but does not need any external dependency.
 def copyFile(sourcePath, destinationPath):
-    #Nota: sourcePath deve essere path assoluto - non relativo a basePath
+    #Note: sourcePath is absolute path
     with open(sourcePath, 'r') as source:
         with open(os.path.join(basePath, destinationPath),'w') as dest:
             for line in source:
@@ -114,7 +119,7 @@ def copyFile(sourcePath, destinationPath):
 
 
 def execute():
-    #Aggiorna path per i link aggiungendo dataset/{versione}
+    #Updates paths for symlinks, adding dataset/{versionName}
     for functionality in functionalities:
         for link in filesToLink[functionality]:
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
@@ -122,33 +127,33 @@ def execute():
         for link in filesToLinkVersionSpecific[functionality]:
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
         
-    #Crea cartella per progetto
+    #Makes project directory
     if (os.path.isdir(basePath)):
         exit("Target project folder already exists.")
     os.makedirs(basePath, exist_ok=True)
     makeFolder("dataset/"+versionN)
 
-    #Crea repo git
+    #Creates git repo
     executionDir = os.getcwd()
     os.chdir(basePath)
     os.system("git init")
     os.chdir(executionDir)
 
-    #Crea le directory
+    #Creates the directory tree
     for directory in baseDirectories:
         makeFolder(directory)
-    #Copia i file di default nelle directory create 
+    #Copies the files
     for functionality in functionalities:
         for fileToCopy in filesToCopy[functionality]:
             copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
-    #Crea i file da creare nuovi
+    #Creates the new files
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
             makeFile(fileToCreate)
     for functionality in functionalities:
         for fileToCreateV in filesToCreateVersionSpecific[functionality]:
             makeFile(fileToCreateV[0] + "_" + versionN + fileToCreateV[1])
-    #Crea link
+    #Makes symlinks
     for functionality in functionalities:
         for fileToLink in filesToLink[functionality]:
             makeLink(fileToLink[0], fileToLink[1])
@@ -156,7 +161,7 @@ def execute():
         for fileToLink in filesToLinkVersionSpecific[functionality]:
             makeLink(fileToLink[0] + "_" + versionN + fileToLink[2], fileToLink[1])
      
-    #CONDA: crea environment; GIT: Aggiunge file ed esegue commit
+    #Creates conda env; git commit.
     executionDir = os.getcwd()
     os.chdir(basePath)
     os.system("CONDA_BASE=$(conda info --base)")
@@ -167,7 +172,7 @@ def execute():
     os.system("git commit -m \"project created\"")
     os.chdir(executionDir)
 
-#Per esecuzione di mkproj da dap.py
+
 def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMake_):
     global basePath
     global projectName

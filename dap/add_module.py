@@ -4,23 +4,27 @@ from git import Repo, Submodule
 
 projBasePath = ''
 
-#Clona repo (se non esiste già), verifica esistenza di dataset/{moduleVersion} e restituisce path
+#Eliminare il .git nella directory creata
+#Se eccezione a livello di bash -> rimettere tutto a posto
+#Far andare link direttamente a local
+
+#Clones the repo, if not already existing; verifies the existence of dataset/{moduleVersion} and retururns path
 def clone(R_Url, path, moduleVersion):
     repoName = R_Url.split("/")[-1]
     rPath = os.path.join(path ,repoName)
-    #Repo potrebbe già esserci - effettua controllo
+    #Repo could exist already
     if (os.path.isdir(rPath)):
         if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
             return rPath
         else:
             exit("Repository does not contain version {}".format(moduleVersion))
-
+    #If not, it clones it
     os.makedirs(rPath, exist_ok = True)
     repo = Repo(projBasePath)
     Submodule.add(repo, repoName, rPath, R_Url)
     if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
         return rPath
-    #Se no errore - prima annulla lavoro fatto per clonare modulo
+    #If does not contains dataset/versionName, undo the cloning and return error.
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git rm {}".format(rPath))
@@ -36,18 +40,17 @@ def getRelativePath(path, fromPath):
 
 def makeLink(sourcePath, destinationPath):
     os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
-    #Aggiunge a git nonostante gitignore
+    #Adds to gitignore
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git add -f {}".format(destinationPath))
     os.chdir(executionDir)
 
-#Crea link da local/modules/{moduleName}/{moduleVersion} a cartella dataset
 def makeLinks(newModulePath, versionPath):
     for file in os.listdir(newModulePath):
         file_ = os.path.join(newModulePath, file)
         if (os.path.isdir(file_)):
-            #Se path è cartella, crea cartella in dataset/{..} e ricorsivamente crea link per contenuto cartella
+            #If it is folder, it creates new folder and recursively links the contents 
             os.makedirs(os.path.join(versionPath, file), exist_ok=True)
             makeLinks(file_, os.path.join(versionPath, file))
         else :
@@ -69,16 +72,15 @@ def add_module(R_Url, versionPath, moduleVersion):
         exit("Project root does not exist")
     if (not os.path.isdir(versionPath)):
         exit("Version path does not exist")
-    #clona repo
+
     newModule = clone(R_Url, os.path.join(projBasePath, "local", "modules"), moduleVersion)
-    #recupera path con link da copiare
+
     newModulePath = os.path.join(newModule, "dataset", moduleVersion)
     os.makedirs(os.path.join(versionPath, os.path.basename(newModule)), exist_ok = True)
     versionPath = os.path.join(versionPath, os.path.basename(newModule))
     os.makedirs(versionPath, exist_ok = True)
     makeLinks(newModulePath, versionPath)
 
-    #Esegue commit git
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git commit -m \"Module {} added\"".format(R_Url))

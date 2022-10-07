@@ -4,8 +4,9 @@ from .clone_prj import cloneVersion
 from .add_module import add_module
 app = typer.Typer()
 
-
-
+#Opt per non creare env -> o no env o env 
+#Derivare env da un altro env
+#Create version
 
 @app.command()
 def create(projectname: str = typer.Argument(..., help="The name of the project to be created"),
