@@ -65,7 +65,7 @@ filesToLink = {
     ],
     'bmake': [ ['local/rules/bmakefile', 'bmakefile'] ],
     'make': [],
-    'snakemake': [['local/rules/Snakefile.mk', 'Snakefile']]
+    'snakemake': [['local/rules/Snakefile', 'Snakefile']]
 }
 
 #Sym links for version specific files. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
@@ -77,7 +77,7 @@ filesToLinkVersionSpecific = {
         ['local/config/config', 'config.mk', '.mk'], ['local/config/makefile_versioned', 'makefile_versioned.mk', '.mk']
     ],
     'snakemake': [
-        ['local/config/config.yaml', 'config.yaml' , '.yaml'], 
+        ['local/config/config', 'config.yaml' , '.yaml'], 
         ['local/config/config', 'config.sk', '.sk'],
         ['local/config/snakefile_versioned', 'snakefile_versioned.sk', '.sk']
     ],
