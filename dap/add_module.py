@@ -26,7 +26,7 @@ def clone(R_Url, path, moduleVersion):
     Submodule.add(repo, repoName, rPath, R_Url)
     if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
         return rPath
-    #If does not contains dataset/versionName, undo the cloning and return error.
+    #If repo does not contain dataset/versionName, undo the cloning and return error
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git rm {}".format(rPath))

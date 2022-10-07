@@ -6,6 +6,7 @@ basePath =  os.getcwd()
 projectName = ""
 versionN = ""
 functionalities = ['default']
+source_env = None
 useMake = False; useBMake = False; useSnakeMake = True
 
 
@@ -27,11 +28,11 @@ filesToCopy = {
         ['_footer.mk', 'local/rules/_footer.mk'],
         ['_header.mk', 'local/rules/_header.mk']
     ],
-    'make': [],
     'snakemake': [
         ['Snakefile','local/rules/Snakefile']
     ],
-    'bmake': []
+    'bmake': [],
+    'make': []
 }
  
 #Files to be created, paths relative to PRJ_PATH
@@ -47,7 +48,8 @@ filesToCreate = {
 filesToCreateVersionSpecific = {
     'default': [],
     'make': [
-        ['local/config/config', '.mk'], ['local/config/makefile_versioned', '.mk']
+        ['local/config/config', '.mk'], 
+        ['local/config/makefile_versioned', '.mk']
     ],
     'snakemake': [
         ['local/config/config', '.yaml'],
@@ -64,9 +66,13 @@ filesToLink = {
     'makeOrBmake': [
         ['local/rules/makefile', 'makefile']
     ],
-    'bmake': [ ['local/rules/bmakefile', 'bmakefile'] ],
+    'bmake': [ 
+        ['local/rules/bmakefile', 'bmakefile'] 
+    ],
     'make': [],
-    'snakemake': [['local/rules/Snakefile', 'Snakefile']]
+    'snakemake': [
+        ['local/rules/Snakefile', 'Snakefile']
+    ]
 }
 
 #Sym links for version specific files. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
@@ -75,14 +81,16 @@ filesToLink = {
 filesToLinkVersionSpecific = {
     'default':[], 
     'make': [
-        ['local/config/config', 'config.mk', '.mk'], ['local/config/makefile_versioned', 'makefile_versioned.mk', '.mk']
+        ['local/config/config', 'config.mk', '.mk'], 
+        ['local/config/makefile_versioned', 'makefile_versioned.mk', '.mk']
     ],
     'snakemake': [
         ['local/config/config', 'config.yaml' , '.yaml'], 
         ['local/config/Snakefile_versioned', 'Snakefile_versioned.sk', '.sk']
     ],
     'bmake': [
-        ['local/config/config_bmake', 'config_bmake.mk', '.mk'], ['local/config/bmakefile_versioned', 'bmakefile_versioned.mk', '.mk']
+        ['local/config/config_bmake', 'config_bmake.mk', '.mk'], 
+        ['local/config/bmakefile_versioned', 'bmakefile_versioned.mk', '.mk']
     ],
     'makeOrBmake': []
 }
@@ -109,7 +117,7 @@ def makeLink(sourcePath, destinationPath):
     os.chdir(executionDir)
 
 
-#Copies a file - not very efficient way to do so but does not need any external dependency.
+#Copies a file - not super efficient way to do so but this way it does not need any external dependency.
 def copyFile(sourcePath, destinationPath):
     #Note: sourcePath is absolute path
     with open(sourcePath, 'r') as source:
@@ -152,21 +160,24 @@ def execute():
             makeFile(fileToCreate)
     for functionality in functionalities:
         for fileToCreateV in filesToCreateVersionSpecific[functionality]:
-            makeFile(fileToCreateV[0] + "_" + versionN + fileToCreateV[1])
+            makeFile(fileToCreateV[0] + "_" + versionN.replace('/','_') + fileToCreateV[1])
     #Makes symlinks
     for functionality in functionalities:
         for fileToLink in filesToLink[functionality]:
             makeLink(fileToLink[0], fileToLink[1])
     for functionality in functionalities:
         for fileToLink in filesToLinkVersionSpecific[functionality]:
-            makeLink(fileToLink[0] + "_" + versionN + fileToLink[2], fileToLink[1])
+            makeLink(fileToLink[0] + "_" + versionN.replace('/','_') + fileToLink[2], fileToLink[1])
      
     #Creates conda env; git commit.
     executionDir = os.getcwd()
     os.chdir(basePath)
     os.system("CONDA_BASE=$(conda info --base)")
     os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
-    os.system("conda create -n $(basename $PWD)_Env")
+    if (source_env == None):
+        os.system("conda create -n $(basename $PWD)_Env")
+    else:
+        os.system(f"conda create --name $(basename $PWD)_Env --clone {source_env}")
     os.system("conda activate $(basename $PWD)_Env")
     os.system("conda env export > local/env/environment.yml")
     os.system("git add .")
@@ -174,13 +185,16 @@ def execute():
     os.chdir(executionDir)
 
 
-def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMake_):
+#Initialize global variables and launches execute()
+def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMake_, source_env_):
     global basePath
     global projectName
     global versionN
     global functionalities
+    global source_env
     global useMake; global useBMake; global useSnakeMake
 
+    source_env = source_env_
     useBMake = useBMake_; useSnakeMake = useSnakeMake_; useMake = useMake_
     if (useBMake):
         functionalities.append('bmake')
@@ -198,7 +212,7 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
 
 
 def main():
-    print('Mkproj')
+    print('Use dap create --help')
     
 
 if __name__ == '__main__':

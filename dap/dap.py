@@ -13,10 +13,12 @@ def create(
     projectname: str = typer.Argument(..., help="The name of the project to be created"),
            projectversion: str = typer.Argument(..., help="The current version of the project - es. V1"),
            usesnakemake: bool = False,
-           usemake: bool = False, usebmake: bool = False):
+           usemake: bool = False, 
+           usebmake: bool = False,
+           source_environment: str = typer.Option(None, "--source_env", help="Optional: specify a conda env to clone")):
     if (not (usebmake or usemake)):
         usesnakemake = True
-    createProject(projectname, projectversion, usesnakemake, usemake, usebmake)
+    createProject(projectname, projectversion, usesnakemake, usemake, usebmake, source_environment)
 
 @app.command()
 def clone(sourceversion: str = typer.Argument(..., help="Version of the project to be cloned"),

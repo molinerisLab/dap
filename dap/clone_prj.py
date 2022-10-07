@@ -42,8 +42,13 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
         fileName = os.path.basename(realPath)
         n = os.path.splitext(fileName)
 
-        if (n[0].endswith("_"+sourceVersion)):
-            newFilename = n[0].removesuffix(sourceVersion) + destinationVersion + n[1]
+        version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
+
+        if (n[0].endswith("_"+version_suffix)):
+        
+            new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
+
+            newFilename = n[0].removesuffix(version_suffix) + new_version_suffix + n[1]
             newFilePath = os.path.join(os.path.dirname(realPath), newFilename)
             copyFile(realPath, newFilePath)
             makeLink(newFilePath, os.path.join(newVPath, os.path.basename(link)))
@@ -53,23 +58,26 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
 
 def cloneVersion(sourceVersion, destinationVersion):
     global projBasePath
-    projBasePath = os.getenv('PRJ_ROOT')
-    if (projBasePath == None or not os.path.isdir(projBasePath)):
-        exit("Could not find base project directory")
-        
-
-    if (not (os.path.isdir(os.path.join(projBasePath, "dataset")) and os.path.isdir(os.path.join(projBasePath, "local")))):
-        exit("Error - project directory not found")
+    projBasePath = os.getenv('PRJ_ROOT')  
     newVPath = os.path.join(projBasePath, "dataset", destinationVersion)
     currentVPath = os.path.join(projBasePath, "dataset", sourceVersion)
+
+    if (os.path.isdir(newVPath)):
+        exit(f"Version {newVPath} already exists")
+    if (destinationVersion.startswith(sourceVersion)):
+        exit(f"{destinationVersion} is a subversion of {sourceVersion}. Cannot clone it.")
+    if (sourceVersion.startswith(destinationVersion)):
+        exit(f"{sourceVersion} is a subversion of {destinationVersion}. Cannot clone it.")
+    if (projBasePath == None or not os.path.isdir(projBasePath)):
+        exit("Could not find base project directory")
+    if (not (os.path.isdir(os.path.join(projBasePath, "dataset")) and os.path.isdir(os.path.join(projBasePath, "local")))):
+        exit("Error - project directory not found")
     if (not os.path.isdir(currentVPath)):
         exit("Could not find  current version path")
 
 
     os.makedirs(newVPath, exist_ok = True)
-    
-    makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion)
-    
+    makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion)    
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git commit -m \"Version {} created\"".format(destinationVersion))
