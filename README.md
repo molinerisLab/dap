@@ -19,16 +19,19 @@ dap create creates a new project in the current working directory; it initiates 
 ```
 ProjectName
 ├── dataset
-│   ├── ProjectVersion
-│   │   ├── Snakefile
-│   │   ├── config.yaml
-│   │   ├── Snakefile_versioned.sk
+│   ├── V1
+│   │   ├── Snakefile (symlink -->)
+│   │   ├── config.yaml (symlink -->)
+│   │   ├── Snakefile_versioned.sk (symlink -->)
 ├── local
 │   ├── src
 │   ├── bin
 │   ├── env
 │   ├── rules
+│   │  ├── Snakefile
 │   ├── config
+│   │  ├── config_V1.mk
+│   │  ├── Snakefile_versioned_V1.sk
 │   ├── data
 │   ├── modules
 ```
