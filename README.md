@@ -12,7 +12,7 @@ dap create creates a new project in the current working directory; it initiates 
 ### commands
 `dap create [--usesnakemake --usemake --usebmake] ProjectName ProjectVersion`
 * ProjectName: the name of the project, which will correspond to the directory and the git repository created.
-* ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created.
+* ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created. ProjectVersion might specify subfolders to be put inside dataset; i.e. *humans/v1* will create the directory *dataset/humans/v1* and a version named *humans_v1*
 * [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
  
 ### Example of directory tree created with Snakemake template:
@@ -49,6 +49,15 @@ The command creates a new directory  *PRJ_ROOT/dataset/{NewVersion}*. Here, for 
 * If the link refers to a non-version specific file: it copies the link.
 * If the link refers to a version specific file: it creates a copy of the file and adds a link to the new one in the version directory.
 **By convention, version specific files' names end with _{VersionName}.**
+
+### Dap clone and sub-versions
+SourceVersion and NewVersion might refer to subfolders inside the dataset/ directory, using the common '/' syntax. For example it's possible to have a version named *humans/v1*. In this case the following operations are allowed:
+* dap clone humans/v1 humans/v2 --> simply clones the humans/v1 version into humans/v2.
+* dap clone humans/v1 bald_monkeys/v1 --> clones the humans/v1 version into bald_monkeys/v1. If bald_monkey directory does not exist, it creates it.
+* dap clone humans bald_monkeys --> clones the entire humans directory into the new directory. Any version inside the human directory will be cloned.
+These operations are not allowed:
+* dap clone humans humans/v3 --> cannot clone entire directory into a subdirectory of it.
+* dap clone humans/v1 humans --> cannot clone directory into parent (or ancestor) directory.
 
 ## dap addmodule
 It imports an external project inside the current project as a module, cloning it from a remote repository. 
