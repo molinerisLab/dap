@@ -9,10 +9,13 @@ app = typer.Typer()
 #Create version
 
 @app.command()
-def create(projectname: str = typer.Argument(..., help="The name of the project to be created"),
+def create(
+    projectname: str = typer.Argument(..., help="The name of the project to be created"),
            projectversion: str = typer.Argument(..., help="The current version of the project - es. V1"),
-           usesnakemake: bool = True,
+           usesnakemake: bool = False,
            usemake: bool = False, usebmake: bool = False):
+    if (not (usebmake or usemake)):
+        usesnakemake = True
     createProject(projectname, projectversion, usesnakemake, usemake, usebmake)
 
 @app.command()
