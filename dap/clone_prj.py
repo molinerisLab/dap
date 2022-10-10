@@ -43,8 +43,9 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
         n = os.path.splitext(fileName)
 
         version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
+        belongs_to_module = (os.path.relpath(realPath,projBasePath)).startswith(os.path.join('local', 'modules'))
 
-        if (n[0].endswith("_"+version_suffix)):
+        if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
         
             new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
 
