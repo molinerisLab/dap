@@ -37,9 +37,9 @@ ProjectName
 ```
 
 ## dap update
-dap update works similarly to dap create but, instead of creating the project from scratch, is to be executed inside the project directory and allows for creation of new versions or updating an existing version by adding different templates.
+dap update works similarly to dap create but, instead of creating the project from scratch, is to be executed inside the project directory and allows for the creation of new versions or the update of an existing version by adding different templates.
 Two different use cases for dap update are:
-* You want to add a different template to your project version - i.e. you may have created the project with the Snakefile template but wants to add the Make template
+* You want to add a different template to your project version - i.e. you may have created the project with the Snakefile template but want to add the Make template
 * You want to create a new project version with empty version-specific rules.
 **By running dap update, files already existing are never modified**
 
