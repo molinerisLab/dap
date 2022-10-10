@@ -36,6 +36,18 @@ ProjectName
 │   ├── modules
 ```
 
+## dap update
+dap update works similarly to dap create but, instead of creating the project from scratch, is to be executed inside the project directory and allows for creation of new versions or updating an existing version by adding different templates.
+Two different use cases for dap update are:
+* You want to add a different template to your project version - i.e. you may have created the project with the Snakefile template but wants to add the Make template
+* You want to create a new project version with empty version-specific rules.
+**By running dap update, files already existing are never modified**
+
+### commands
+`dap update [--usesnakemake --usemake --usebmake] ProjectVersion`
+* ProjectVersion: version of the project where the operation is to be applied; if the version does not exist, it is created.
+* [--usesnakemake --usemake --usebmake]: adds the templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.  **If one or more templates already exist, they are not changed**.
+
 
 ## dap clone
 It creates a new version of the project, cloning an existing one.
