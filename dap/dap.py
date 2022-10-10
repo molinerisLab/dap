@@ -1,5 +1,5 @@
 import typer
-from .mkproj import createProject
+from .mkproj import createProject, updateProject
 from .clone_prj import cloneVersion
 from .add_module import add_module
 app = typer.Typer()
@@ -19,6 +19,16 @@ def create(
     if (not (usebmake or usemake)):
         usesnakemake = True
     createProject(projectname, projectversion, usesnakemake, usemake, usebmake, source_environment)
+
+@app.command()
+def update(
+           projectversion: str = typer.Argument(..., help="The version of the project to be created or updated - es. V1"),
+           usesnakemake: bool = False,
+           usemake: bool = False, 
+           usebmake: bool = False):
+    if (not (usebmake or usemake)):
+        usesnakemake = True
+    updateProject(projectversion, usesnakemake, usemake, usebmake)
 
 @app.command()
 def clone(sourceversion: str = typer.Argument(..., help="Version of the project to be cloned"),

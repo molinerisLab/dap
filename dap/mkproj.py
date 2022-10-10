@@ -3,7 +3,6 @@ from sys import exit
 
 
 basePath =  os.getcwd()
-projectName = ""
 versionN = ""
 functionalities = ['default']
 source_env = None
@@ -98,7 +97,9 @@ filesToLinkVersionSpecific = {
 def makeFolder(path):
     os.makedirs(os.path.join(basePath, path), exist_ok = True)
 
-def makeFile(path):
+def makeFile(path, exist_ok):
+    if (exist_ok and os.path.isfile(os.path.join(basePath, path))):
+        return
     with open(os.path.join(basePath, path), 'w') as f:
         f.write(' ')
 
@@ -106,9 +107,12 @@ def getRelativePath(path, fromPath):
     fromPath = os.path.split(fromPath)[0]
     return os.path.relpath(path, start=fromPath)
 
-def makeLink(sourcePath, destinationPath):
+def makeLink(sourcePath, destinationPath, exist_ok):
     sourcePath = os.path.join(basePath, sourcePath)
     destinationPath = os.path.join(basePath, destinationPath)
+    if (exist_ok and os.path.isfile(destinationPath)):
+        return
+
     os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
     #Aggiunge a git nonostante gitignore
     executionDir = os.getcwd()
@@ -118,15 +122,20 @@ def makeLink(sourcePath, destinationPath):
 
 
 #Copies a file - not super efficient way to do so but this way it does not need any external dependency.
-def copyFile(sourcePath, destinationPath):
+def copyFile(sourcePath, destinationPath, exist_ok):
     #Note: sourcePath is absolute path
+    destinationPath = os.path.join(basePath, destinationPath)
+    if (exist_ok and os.path.isfile(destinationPath)):
+        return
+
     with open(sourcePath, 'r') as source:
-        with open(os.path.join(basePath, destinationPath),'w') as dest:
+        with open(destinationPath,'w') as dest:
             for line in source:
                 dest.write(line)
 
 
-def execute():
+
+def execute(exist_ok):
     #Updates paths for symlinks, adding dataset/{versionName}
     for functionality in functionalities:
         for link in filesToLink[functionality]:
@@ -136,16 +145,18 @@ def execute():
             link[1] = os.path.join(basePath, "dataset",versionN, link[1])
         
     #Makes project directory
-    if (os.path.isdir(basePath)):
-        exit("Target project folder already exists.")
-    os.makedirs(basePath, exist_ok=True)
+    if (not exist_ok):
+        if (os.path.isdir(basePath)):
+            exit("Target project folder already exists.")
+        os.makedirs(basePath, exist_ok=True)
     makeFolder("dataset/"+versionN)
 
     #Creates git repo
-    executionDir = os.getcwd()
-    os.chdir(basePath)
-    os.system("git init")
-    os.chdir(executionDir)
+    if (not exist_ok):
+        executionDir = os.getcwd()
+        os.chdir(basePath)
+        os.system("git init")
+        os.chdir(executionDir)
 
     #Creates the directory tree
     for directory in baseDirectories:
@@ -153,42 +164,45 @@ def execute():
     #Copies the files
     for functionality in functionalities:
         for fileToCopy in filesToCopy[functionality]:
-            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1])
+            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1], exist_ok)
     #Creates the new files
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
-            makeFile(fileToCreate)
+            makeFile(fileToCreate, exist_ok)
     for functionality in functionalities:
         for fileToCreateV in filesToCreateVersionSpecific[functionality]:
-            makeFile(fileToCreateV[0] + "_" + versionN.replace('/','_') + fileToCreateV[1])
+            makeFile(fileToCreateV[0] + "_" + versionN.replace('/','_') + fileToCreateV[1], exist_ok)
     #Makes symlinks
     for functionality in functionalities:
         for fileToLink in filesToLink[functionality]:
-            makeLink(fileToLink[0], fileToLink[1])
+            makeLink(fileToLink[0], fileToLink[1], exist_ok)
     for functionality in functionalities:
         for fileToLink in filesToLinkVersionSpecific[functionality]:
-            makeLink(fileToLink[0] + "_" + versionN.replace('/','_') + fileToLink[2], fileToLink[1])
+            makeLink(fileToLink[0] + "_" + versionN.replace('/','_') + fileToLink[2], fileToLink[1], exist_ok)
      
     #Creates conda env; git commit.
     executionDir = os.getcwd()
     os.chdir(basePath)
-    os.system("CONDA_BASE=$(conda info --base)")
-    os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
-    if (source_env == None):
-        os.system("conda create -n $(basename $PWD)_Env")
-    else:
-        os.system(f"conda create --name $(basename $PWD)_Env --clone {source_env}")
-    os.system("conda activate $(basename $PWD)_Env")
-    os.system("conda env export > local/env/environment.yml")
+    if (not exist_ok):
+        os.system("CONDA_BASE=$(conda info --base)")
+        os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
+        if (source_env == None):
+            os.system("conda create -n $(basename $PWD)_Env")
+        else:
+            os.system(f"conda create --name $(basename $PWD)_Env --clone {source_env}")
+        os.system("conda activate $(basename $PWD)_Env")
+        os.system("conda env export > local/env/environment.yml")
     os.system("git add .")
-    os.system("git commit -m \"project created\"")
+    if (not exist_ok):
+        os.system("git commit -m \"project created\"")
+    else:
+        os.system("git commit -m \"project updated\"")
     os.chdir(executionDir)
 
 
 #Initialize global variables and launches execute()
 def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMake_, source_env_):
     global basePath
-    global projectName
     global versionN
     global functionalities
     global source_env
@@ -204,12 +218,30 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
         functionalities.append('make')
     if (useMake or useBMake):
         functionalities.append('makeOrBmake')
-    projectName = projectName_
     versionN = projectVersion_
-    basePath = os.path.join(os.getcwd(), projectName)
-    execute()
+    basePath = os.path.join(os.getcwd(), projectName_)
+    execute(False)
 
+def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
+    global basePath
+    global versionN
+    global functionalities
+    global useMake; global useBMake; global useSnakeMake
 
+    useBMake = useBMake_; useSnakeMake = useSnakeMake_; useMake = useMake_
+    if (useBMake):
+        functionalities.append('bmake')
+    if (useSnakeMake):
+        functionalities.append('snakemake')
+    if (useMake):
+        functionalities.append('make')
+    if (useMake or useBMake):
+        functionalities.append('makeOrBmake')
+    versionN = projectVersion_
+    basePath = os.getenv('PRJ_ROOT')
+    if (basePath == None or not os.path.isdir(basePath)):
+        exit("Could not find base project directory")
+    execute(True)
 
 def main():
     print('Use dap create --help')
