@@ -9,7 +9,7 @@ SHELL=/bin/bash -eo pipefail
 #-include ignore che include if the file does not exists
 
 
-.bmake/makefile: bmakefile.mk ; @bmake-filter -o --ignore-global-rules  < $< > $@
+.bmake/makefile: bmakefile ; @bmake-filter -o --ignore-global-rules  < $< > $@
 -include .bmake/makefile
 #-include ignore che include if the file does not exists
 
