@@ -66,7 +66,7 @@ filesToLink = {
         ['local/rules/makefile', 'makefile']
     ],
     'bmake': [ 
-        ['local/rules/bmakefile', 'bmakefile'] 
+        ['local/rules/bmakefile.mk', 'bmakefile'] 
     ],
     'make': [],
     'snakemake': [
