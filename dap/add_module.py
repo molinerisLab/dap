@@ -9,14 +9,14 @@ projBasePath = ''
 #Far andare link direttamente a local
 
 #Clones the repo, if not already existing; verifies the existence of dataset/{moduleVersion} and retururns path
-def clone(R_Url, path, moduleVersion):
+def clone(R_Url, path, moduleVersion = None):
     repoName = R_Url.split("/")[-1]
     if (repoName.endswith('.git')):
         repoName = repoName.removesuffix('.git')
     rPath = os.path.join(path ,repoName)
     #Repo could exist already
     if (os.path.isdir(rPath)):
-        if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
+        if (moduleVersion is None or os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
             return rPath
         else:
             exit("Repository does not contain version {}".format(moduleVersion))
@@ -24,7 +24,7 @@ def clone(R_Url, path, moduleVersion):
     os.makedirs(rPath, exist_ok = True)
     repo = Repo(projBasePath)
     Submodule.add(repo, repoName, rPath, R_Url)
-    if (os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
+    if (moduleVersion is None or os.path.isdir(os.path.join(rPath, "dataset", moduleVersion))):
         return rPath
     #If repo does not contain dataset/versionName, undo the cloning and return error
     executionDir = os.getcwd()
@@ -63,6 +63,24 @@ def makeLinks(newModulePath, versionPath):
             os.system("git add -f {}".format(os.path.join(versionPath, os.path.basename(file))))
             os.chdir(executionDir)
 
+def print_after_clone(module_path):
+    module_path = os.path.join(module_path, "local", "doc", "after_clone.md")
+    if (os.path.isfile(module_path)):
+        with open(module_path, 'r') as f:
+            print(f.read())
+
+def add_module_no_symlink(R_Url):
+    global projBasePath
+    projBasePath = os.getenv('PRJ_ROOT')
+    if (projBasePath == None or not os.path.isdir(projBasePath)):
+        exit("Could not find base project directory")
+    newModule = clone(R_Url, os.path.join(projBasePath, "local", "modules"))
+    executionDir = os.getcwd()
+    os.chdir(projBasePath)
+    os.system("git commit -m \"Module {} added\"".format(R_Url))
+    os.chdir(executionDir)
+    print_after_clone(newModule)
+
 def add_module(R_Url, versionPath, moduleVersion):
     global projBasePath
     projBasePath = os.getenv('PRJ_ROOT')
@@ -87,3 +105,4 @@ def add_module(R_Url, versionPath, moduleVersion):
     os.chdir(projBasePath)
     os.system("git commit -m \"Module {} added\"".format(R_Url))
     os.chdir(executionDir)
+    print_after_clone(newModule)

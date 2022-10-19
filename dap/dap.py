@@ -1,7 +1,8 @@
 import typer
+from typing import Optional
 from .mkproj import createProject, updateProject
 from .clone_prj import cloneVersion
-from .add_module import add_module
+from .add_module import add_module, add_module_no_symlink
 app = typer.Typer()
 
 #Opt per non creare env -> o no env o env 
@@ -35,11 +36,16 @@ def clone(sourceversion: str = typer.Argument(..., help="Version of the project 
         newversion: str = typer.Argument(..., help="Version of the project to be generated")):
     cloneVersion(sourceversion, newversion)
 
+#name: Optional[str] = typer.Argument(None)
 @app.command()
 def addmodule(repo_url: str = typer.Argument(..., help="URL to remote repository"),
-        project_version: str = typer.Argument(..., help="Version of the project where you want to include the module - relative to project root - es. dataset/V1"),
-        module_version: str = typer.Argument(..., help="Version of the module that you want to include - es. V1")):
-	add_module(repo_url, project_version, module_version)
+        project_version: Optional[str] = typer.Argument(None, help="Version of the project where you want to include the module - relative to project root - es. dataset/V1"),
+        module_version: Optional[str] = typer.Argument(None, help="Version of the module that you want to include - es. V1")):
+
+        if (project_version is None or module_version is None):
+            add_module_no_symlink(repo_url)
+        else:
+            add_module(repo_url, project_version, module_version)
 
 def run_dap():
     app()

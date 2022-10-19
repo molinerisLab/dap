@@ -80,6 +80,8 @@ The module is added as an sub-module in git.
 * ProjectVersion: path to the directory containing the project's version where you want to import the module, relative to PRJ_ROOT. In most cases it's a path structured as **dataset/{ProjectVersion}**
 * ModuleVersion: name of the module's version we want to import.
 
+ProjectVersion and ModuleVersion are optional. If not provided, dap will clone the project inside local/modules without creating version-specific symlinks.
+
 ### Compliance of the project
 The project to be imported as a module must be compliant with the structure of the projects created with **dap**. It must contain the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*.
 
