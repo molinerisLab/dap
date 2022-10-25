@@ -44,9 +44,6 @@ def makeLink(sourcePath, destinationPath):
     os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
     #Adds to gitignore
     executionDir = os.getcwd()
-    os.chdir(projBasePath)
-    os.system("git add -f {}".format(destinationPath))
-    os.chdir(executionDir)
 
 def makeLinks(newModulePath, versionPath):
     for file in os.listdir(newModulePath):
