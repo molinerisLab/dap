@@ -147,7 +147,7 @@ def execute(exist_ok):
     #Makes project directory
     if (not exist_ok):
         if (os.path.isdir(basePath)):
-            exit("Target project folder already exists.")
+            exit(f"Error - Target project directory {basePath} already exists.")
         os.makedirs(basePath, exist_ok=True)
     makeFolder("dataset/"+versionN)
 
@@ -239,8 +239,10 @@ def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
         functionalities.append('makeOrBmake')
     versionN = projectVersion_
     basePath = os.getenv('PRJ_ROOT')
-    if (basePath == None or not os.path.isdir(basePath)):
-        exit("Could not find base project directory")
+    if (basePath == undefined or len(basePath)==0):
+        exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
+    if (not os.path.isdir(basePath)):
+        exit(f"Error - Could not find base project directory {basePath}")
     execute(True)
 
 def main():

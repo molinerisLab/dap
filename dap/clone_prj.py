@@ -59,22 +59,26 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
 
 def cloneVersion(sourceVersion, destinationVersion):
     global projBasePath
-    projBasePath = os.getenv('PRJ_ROOT')  
+    projBasePath = os.getenv('PRJ_ROOT') 
+
+    if (projBasePath == undefined or len(projBasePath)==0):
+        exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
+
     newVPath = os.path.join(projBasePath, "dataset", destinationVersion)
     currentVPath = os.path.join(projBasePath, "dataset", sourceVersion)
 
     if (os.path.isdir(newVPath)):
-        exit(f"Version {newVPath} already exists")
+        exit(f"Error - Version {newVPath} already exists")
     if (destinationVersion.startswith(sourceVersion)):
-        exit(f"{destinationVersion} is a subversion of {sourceVersion}. Cannot clone it.")
+        exit(f"Error - {destinationVersion} is a subversion of {sourceVersion}. Cannot clone it.")
     if (sourceVersion.startswith(destinationVersion)):
-        exit(f"{sourceVersion} is a subversion of {destinationVersion}. Cannot clone it.")
-    if (projBasePath == None or not os.path.isdir(projBasePath)):
-        exit("Could not find base project directory")
+        exit(f"Error - {sourceVersion} is a subversion of {destinationVersion}. Cannot clone it.")
+    if (not os.path.isdir(projBasePath)):
+        exit(f"Error - Could not find project directory {projBasePath}.")
     if (not (os.path.isdir(os.path.join(projBasePath, "dataset")) and os.path.isdir(os.path.join(projBasePath, "local")))):
-        exit("Error - project directory not found")
+        exit(f"Error - Project directory {projBasePath} does not contain dataset or local subfolders.")
     if (not os.path.isdir(currentVPath)):
-        exit("Could not find  current version path")
+        exit(f"Error - Could not find  current version path {currentVPath}")
 
 
     os.makedirs(newVPath, exist_ok = True)
