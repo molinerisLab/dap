@@ -1,5 +1,5 @@
 {% set name = "dap" %}
-{% set version = "0.1" %}
+{% set version = "0.2" %}
 
 package:
   name: "{{ name|lower }}"
@@ -17,7 +17,6 @@ requirements:
     - python
     - typer
     - gitpython
-    - direnv
 
 
 about:
