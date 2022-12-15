@@ -1,6 +1,6 @@
 import os
 from sys import exit
-
+import subprocess
 
 basePath =  os.getcwd()
 versionN = ""
@@ -52,7 +52,7 @@ filesToCreateVersionSpecific = {
     ],
     'snakemake': [
         ['local/config/config', '.yaml'],
-        ['local/config/Snakefile_versioned','.sk']
+        ['local/config/osioned','.sk']
     ],
     'bmake': [
         ['local/config/config_bmake', '.mk'], ['local/config/bmakefile_versioned', '.mk']
@@ -155,7 +155,7 @@ def execute(exist_ok):
     if (not exist_ok):
         executionDir = os.getcwd()
         os.chdir(basePath)
-        os.system("git init")
+        os.system("git init") #git init -b initialBranchName
         os.chdir(executionDir)
 
     #Creates the directory tree
@@ -183,15 +183,21 @@ def execute(exist_ok):
     #Creates conda env; git commit.
     executionDir = os.getcwd()
     os.chdir(basePath)
+    
+    #Conda - creation of default env
     if (not exist_ok):
-        os.system("CONDA_BASE=$(conda info --base)")
-        os.system("source $CONDA_BASE/etc/profile.d/conda.sh")
+        bash_script = """
+CONDA_BASE=$(conda info --base)
+source $CONDA_BASE/etc/profile.d/conda.sh
+        """
         if (source_env == None):
-            os.system("conda create -n $(basename $PWD)_Env")
+            bash_script = bash_script + """\nconda create -n $(basename $PWD)_Env"""
         else:
-            os.system(f"conda create --name $(basename $PWD)_Env --clone {source_env}")
-        os.system("conda activate $(basename $PWD)_Env")
-        os.system("conda env export > local/env/environment.yml")
+            bash_script = bash_script + f"\nconda create --name $(basename $PWD)_Env --clone {source_env}"
+        bash_script = bash_script + "\nconda env export > local/env/environment.yml"
+        subprocess.run(bash_script, shell=True, check=True, executable='/bin/bash')
+    
+    #Git - final commit
     os.system("git add .")
     if (not exist_ok):
         os.system("git commit -m \"project created\"")

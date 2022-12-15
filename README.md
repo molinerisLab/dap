@@ -2,9 +2,12 @@
 The tool provides three commands:
 * dap create
 * dap clone
-* dap addmodule
 
-Help is provided by this command:
+### Installation
+* Get to dap base directory
+* Run `pip install .`
+
+### Help is provided by this command:
 `dap --help`
 
 ## dap create
@@ -72,6 +75,7 @@ These operations are not allowed:
 * dap clone humans/v1 humans --> cannot clone directory into parent (or ancestor) directory.
 
 ## dap addmodule
+**Currently not available**
 It imports an external project inside the current project as a module, cloning it from a remote repository. 
 The module is added as an sub-module in git.
 ### commands

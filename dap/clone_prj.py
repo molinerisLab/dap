@@ -61,7 +61,7 @@ def cloneVersion(sourceVersion, destinationVersion):
     global projBasePath
     projBasePath = os.getenv('PRJ_ROOT') 
 
-    if (projBasePath == undefined or len(projBasePath)==0):
+    if (projBasePath == None or len(projBasePath)==0):
         exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
 
     newVPath = os.path.join(projBasePath, "dataset", destinationVersion)
