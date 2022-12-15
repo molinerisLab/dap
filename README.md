@@ -4,6 +4,9 @@ The tool provides three commands:
 * dap clone
 
 ### Installation
+* Install dependencies:
+* * conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
+* * direnv: `conda install -c conda-forge direnv`
 * Get to dap base directory
 * Run `pip install .`
 
