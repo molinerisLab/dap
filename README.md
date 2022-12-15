@@ -7,16 +7,19 @@ The tool provides three commands:
 * Get to dap base directory
 * Run `pip install .`
 
+Alternatively dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap
+
 ### Help is provided by this command:
 `dap --help`
 
 ## dap create
 dap create creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
 ### commands
-`dap create [--usesnakemake --usemake --usebmake] ProjectName ProjectVersion`
+`dap create [--usesnakemake --usemake --usebmake][--source_env=MyEnvironment] ProjectName ProjectVersion`
 * ProjectName: the name of the project, which will correspond to the directory and the git repository created.
 * ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created. ProjectVersion might specify subfolders to be put inside dataset; i.e. *humans/v1* will create the directory *dataset/humans/v1* and a version named *humans_v1*
 * [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
+* [--source_env=MyEnvironment]: optionally the user can specify an existing conda environment that is to be cloned when creating the project environment.
  
 ### Example of directory tree created with Snakemake template:
 ```

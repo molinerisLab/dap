@@ -15,6 +15,7 @@ setup(name='dap',
         'model/.envrc',
         'model/.gitignore',
         'model/makefile',
-        'model/Snakefile'
+        'model/Snakefile',
+        'model/dapdefault.yml'
         ]}
       )

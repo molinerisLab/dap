@@ -7,7 +7,7 @@ package:
 
 source: 
   git_url: https://github.com/molinerisLab/dap.git
-  git_ref: 0.1
+  git_ref: 0.2
 
 requirements:
   host:
