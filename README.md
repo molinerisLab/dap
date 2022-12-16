@@ -1,12 +1,11 @@
 # dap
-The tool provides three commands:
-* dap create
-* dap clone
 
-### Installation
+TODO short description
+
+# Installation
 
 
-### Install with conda
+## Install with conda
 
 Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
 
@@ -16,20 +15,24 @@ conda install -c molinerislab dap
 
 we advise to install in in the `base` environment, indeed bap will take care of handling project specific environments.
 
-### Istallation without conda
+## Istallation without conda
 * Install dependencies:
 * * conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 * * direnv: `conda install -c conda-forge direnv`
 * Get to dap base directory
 * Run `pip install .`
 
-### Help is provided by this command:
+# Help is provided by this command:
 `dap --help`
 
-## dap create
-dap create creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
-### commands
-`dap create [--usesnakemake --usemake --usebmake][--source_env=MyEnvironment] ProjectName ProjectVersion`
+# Create a new project
+Go in the directory that host your projects or create a new one, e.g. `cd ~; mkdri prj; cd ~/prj`
+
+The command `dap create` creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
+
+
+```dap create [--usesnakemake --usemake --usebmake][--source_env=MyEnvironment] ProjectName ProjectVersion```
+
 * ProjectName: the name of the project, which will correspond to the directory and the git repository created.
 * ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created. ProjectVersion might specify subfolders to be put inside dataset; i.e. *humans/v1* will create the directory *dataset/humans/v1* and a version named *humans_v1*
 * [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
