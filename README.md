@@ -14,6 +14,8 @@ Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with t
 conda install -c molinerislab dap
 ```
 
+we advise to install in in the `base` environment, indeed bap will take care of handling project specific environments.
+
 ### Istallation without conda
 * Install dependencies:
 * * conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
