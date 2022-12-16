@@ -52,7 +52,7 @@ filesToCreateVersionSpecific = {
     ],
     'snakemake': [
         ['local/config/config', '.yaml'],
-        ['local/config/osioned','.sk']
+        ['local/config/Snakefile_versioned','.sk']
     ],
     'bmake': [
         ['local/config/config_bmake', '.mk'], ['local/config/bmakefile_versioned', '.mk']
