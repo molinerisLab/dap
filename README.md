@@ -4,13 +4,22 @@ The tool provides three commands:
 * dap clone
 
 ### Installation
+
+
+### Install with conda
+
+Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
+
+```
+conda install -c molinerislab dap
+```
+
+### Istallation without conda
 * Install dependencies:
 * * conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 * * direnv: `conda install -c conda-forge direnv`
 * Get to dap base directory
 * Run `pip install .`
-
-Alternatively dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap
 
 ### Help is provided by this command:
 `dap --help`
