@@ -4,6 +4,27 @@ TODO short description
 
 # Installation
 
+Linux and Mac OSX are supported.
+
+## Instal dependencies
+
+### git
+
+Install `git` on your sistem. A good guide for this is https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+
+Configure git with the command
+
+```git config --global --edit```
+
+### conda
+
+Follow the instruction on https://docs.conda.io/projects/conda/en/latest/user-guide/install/
+
+### direnv
+
+You can follow the instruction here: https://direnv.net/docs/installation.html
+
+Alternartiveli you can use conda `conda install -c conda-forge direnv`
 
 ## Install with conda
 
@@ -13,14 +34,12 @@ Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with t
 conda install -c molinerislab dap
 ```
 
-we advise to install in in the `base` environment, indeed bap will take care of handling project specific environments.
+we advise to install it in the `base` environment, indeed bap will take care of handling project specific environments.
 
 ## Istallation without conda
-* Install dependencies:
-* * conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-* * direnv: `conda install -c conda-forge direnv`
-* Get to dap base directory
-* Run `pip install .`
+ 1. Clone this repository `git clone git@github.com:molinerisLab/dap.git dap`
+ 1. Go to the newly created directory `cd dap`
+ 1. Run `pip install .`
 
 # Help is provided by this command:
 `dap --help`
