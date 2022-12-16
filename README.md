@@ -5,6 +5,7 @@ TODO short description
 # Installation
 
 Linux and Mac OSX are supported.
+
 Python >= 3 required.
 
 ## Instal dependencies
