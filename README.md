@@ -28,6 +28,10 @@ You can follow the instruction here: https://direnv.net/docs/installation.html
 
 Alternartiveli you can use conda `conda install -c conda-forge direnv`
 
+After installing, direnv needs to be hooked into the shell:
+* for bash: add `eval "$(direnv hook bash)"` to your .bashrc file
+* for other shells: https://direnv.net/docs/hook.html
+
 ## Install with conda
 
 Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
@@ -36,7 +40,7 @@ Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with t
 conda install -c molinerislab dap
 ```
 
-we advise to install it in the `base` environment, indeed bap will take care of handling project specific environments.
+we advise to install it in the `base` environment, indeed dap will take care of handling project specific environments.
 
 ## Istallation without conda
  1. Clone this repository `git clone git@github.com:molinerisLab/dap.git dap`
