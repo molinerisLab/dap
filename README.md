@@ -32,7 +32,7 @@ After installing, direnv needs to be hooked into the shell:
 * for bash: add `eval "$(direnv hook bash)"` to your .bashrc file
 * for other shells: https://direnv.net/docs/hook.html
 
-## Install with conda
+## Install dap with conda
 
 Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
 
@@ -42,15 +42,17 @@ conda install -c molinerislab dap
 
 we advise to install it in the `base` environment, indeed dap will take care of handling project specific environments.
 
-## Istallation without conda
+## Istall dap without conda
  1. Clone this repository `git clone git@github.com:molinerisLab/dap.git dap`
  1. Go to the newly created directory `cd dap`
  1. Run `pip install .`
 
-# Help is provided by this command:
+
+# Usage
+## Help is provided by this command:
 `dap --help`
 
-# Create a new project
+## Create a new project
 Go in the directory that host your projects or create a new one, e.g. `cd ~; mkdri prj; cd ~/prj`
 
 The command `dap create` creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
@@ -84,23 +86,22 @@ ProjectName
 │   ├── modules
 ```
 
-## dap update
-dap update works similarly to dap create but, instead of creating the project from scratch, is to be executed inside the project directory and allows for the creation of new versions or the update of an existing version by adding different templates.
+## Update existing project
+`dap update` is to be executed inside the project directory and allows for the creation of new versions or the update of an existing version by adding different templates.
 Two different use cases for dap update are:
 * You want to add a different template to your project version - i.e. you may have created the project with the Snakefile template but want to add the Make template
 * You want to create a new project version with empty version-specific rules.
-**By running dap update, files already existing are never modified**
 
-### commands
 `dap update [--usesnakemake --usemake --usebmake] ProjectVersion`
 * ProjectVersion: version of the project where the operation is to be applied; if the version does not exist, it is created.
 * [--usesnakemake --usemake --usebmake]: adds the templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.  **If one or more templates already exist, they are not changed**.
 
+**By running dap update, files already existing are never modified**
 
-## dap clone
-It creates a new version of the project, cloning an existing one.
-It must be executed inside the project directory.
-### commands
+
+## Create new version
+`dap clone` is to be executed inside the project directory and it creates a new version of the project by cloning an existing one.
+
 `dap clone SourceVersion NewVersion`
 * SourceVersion: Name of the version to be cloned.
 * NewVersion: Name of the new version.
