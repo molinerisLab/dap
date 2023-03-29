@@ -251,7 +251,7 @@ def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
         functionalities.append('makeOrBmake')
     versionN = projectVersion_
     basePath = os.getenv('PRJ_ROOT')
-    if (basePath == undefined or len(basePath)==0):
+    if (basePath == None or len(basePath)==0):
         exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
     if (not os.path.isdir(basePath)):
         exit(f"Error - Could not find base project directory {basePath}")
