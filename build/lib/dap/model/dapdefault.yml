@@ -1,0 +1,40 @@
+name: dapdefault
+channels:
+  - conda-forge
+  - molinerislab
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - ca-certificates=2022.12.7=ha878542_0
+  - certifi=2022.12.7=pyhd8ed1ab_0
+  - click=8.0.4=py39h06a4308_0
+  - colorama=0.4.5=py39h06a4308_0
+  - dap=0.1=py39_0
+  - direnv=2.31.0=ha8f183a_0
+  - flit-core=3.6.0=pyhd3eb1b0_0
+  - gitdb=4.0.7=pyhd3eb1b0_0
+  - gitpython=3.1.18=pyhd3eb1b0_1
+  - ld_impl_linux-64=2.38=h1181459_1
+  - libffi=3.4.2=h6a678d5_6
+  - libgcc-ng=11.2.0=h1234567_1
+  - libgomp=11.2.0=h1234567_1
+  - libstdcxx-ng=11.2.0=h1234567_1
+  - ncurses=6.3=h5eee18b_3
+  - openssl=1.1.1s=h7f8727e_0
+  - pip=22.3.1=py39h06a4308_0
+  - python=3.9.15=h7a1cb2a_2
+  - readline=8.2=h5eee18b_0
+  - setuptools=65.5.0=py39h06a4308_0
+  - shellingham=1.5.0=py39h06a4308_0
+  - smmap=4.0.0=pyhd3eb1b0_0
+  - sqlite=3.40.0=h5082296_0
+  - tk=8.6.12=h1ccaba5_0
+  - typer=0.4.1=py39h06a4308_0
+  - typing-extensions=4.4.0=py39h06a4308_0
+  - typing_extensions=4.4.0=py39h06a4308_0
+  - tzdata=2022g=h04d1e81_0
+  - wheel=0.37.1=pyhd3eb1b0_0
+  - xz=5.2.8=h5eee18b_0
+  - zlib=1.2.13=h5eee18b_0
+prefix: /home/mmasera_local/anaconda3/envs/dap_default
