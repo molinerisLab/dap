@@ -192,6 +192,7 @@ def execute(exist_ok, remote_repo = None):
     #Conda - creation of default env
     if (not exist_ok):
         bash_script = """
+ECHO creating project environment
 CONDA_BASE=$(conda info --base)
 source $CONDA_BASE/etc/profile.d/conda.sh
         """

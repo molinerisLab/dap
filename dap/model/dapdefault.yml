@@ -10,7 +10,7 @@ dependencies:
   - certifi=2022.12.7=pyhd8ed1ab_0
   - click=8.0.4=py39h06a4308_0
   - colorama=0.4.5=py39h06a4308_0
-  - dap=0.1=py39_0
+  - dap
   - direnv=2.31.0=ha8f183a_0
   - flit-core=3.6.0=pyhd3eb1b0_0
   - gitdb=4.0.7=pyhd3eb1b0_0
