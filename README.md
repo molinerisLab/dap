@@ -8,30 +8,6 @@ Linux and Mac OSX are supported.
 
 Python >= 3 required.
 
-## Instal dependencies
-
-### git
-
-Install `git` on your sistem. A good guide for this is https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-
-Configure git with the command
-
-```git config --global --edit```
-
-### conda
-
-Follow the instruction on https://docs.conda.io/projects/conda/en/latest/user-guide/install/
-
-### direnv
-
-You can follow the instruction here: https://direnv.net/docs/installation.html
-
-Alternartiveli you can use conda `conda install -c conda-forge direnv`
-
-After installing, direnv needs to be hooked into the shell:
-* for bash: add `eval "$(direnv hook bash)"` to your .bashrc file
-* for other shells: https://direnv.net/docs/hook.html
-
 ## Install dap with conda
 
 Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
@@ -42,7 +18,37 @@ conda install -c molinerislab dap
 
 we advise to install it in the `base` environment, indeed dap will take care of handling project specific environments.
 
-## Istall dap without conda
+## Istall dap outside conda
+Dap can be installed outside of conda using Pip. The disadvantage of this strategy is that dependencies must be installed manually.
+
+### Instal dependencies
+
+**git**
+
+Install `git` on your sistem. A good guide for this is https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+
+Configure git with the command
+
+```git config --global --edit```
+
+**conda**
+
+Follow the instruction on https://docs.conda.io/projects/conda/en/latest/user-guide/install/
+
+**direnv**
+
+You can follow the instruction here: https://direnv.net/docs/installation.html
+
+Alternartiveli you can use conda `conda install -c conda-forge direnv`
+
+**Gitpython**
+Run  `pip install gitpython`
+
+### Install Dap with Pip
+
+After installing, direnv needs to be hooked into the shell:
+* for bash: add `eval "$(direnv hook bash)"` to your .bashrc file
+* for other shells: https://direnv.net/docs/hook.html
  1. Clone this repository `git clone git@github.com:molinerisLab/dap.git dap`
  1. Go to the newly created directory `cd dap`
  1. Run `pip install .`
