@@ -18,7 +18,7 @@ conda install -c molinerislab dap
 
 we advise to install it in the `base` environment, indeed dap will take care of handling project specific environments.
 
-## Istall dap outside conda
+## Install dap outside conda
 Dap can be installed outside of conda using Pip. The disadvantage of this strategy is that dependencies must be installed manually.
 
 ### Instal dependencies
