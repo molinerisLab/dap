@@ -8,6 +8,7 @@ def getRelativePath(path, fromPath):
     return os.path.relpath(path, start=fromPath)
 
 def makeLink(sourcePath, destinationPath):
+    os.makedirs(os.path.dirname(destinationPath), exist_ok=True)
     os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
     #Adds to git bypassing gitignore
     executionDir = os.getcwd()
@@ -29,13 +30,14 @@ def copyFile(sourcePath, destinationPath):
 
 def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
     links = []
-    for link in os.listdir(currentVPath):
-        link_ = os.path.join(currentVPath, link)
+    for file in os.listdir(currentVPath):
+        link_ = os.path.join(currentVPath, file)
         if (os.path.islink(link_)):
-            links.append(link_)
+            #Check if file belongs to local
+            if ((os.path.relpath(os.path.realpath(link_),projBasePath)).startswith('local')):
+                links.append(link_)
         elif (os.path.isdir(link_)):
-            os.makedirs(os.path.join(newVPath, link) , exist_ok = True)
-            makeLinks(link_, os.path.join(newVPath, link), destinationVersion, sourceVersion)
+            makeLinks(link_, os.path.join(newVPath, file), destinationVersion, sourceVersion)
         
     for link in links:
         realPath =  os.path.realpath(link)
