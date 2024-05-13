@@ -29,15 +29,18 @@ def copyFile(sourcePath, destinationPath):
 
 
 def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
+    #Generate a list of sys links to copy
     links = []
     for file in os.listdir(currentVPath):
-        link_ = os.path.join(currentVPath, file)
-        if (os.path.islink(link_)):
-            #Check if file belongs to local
-            if ((os.path.relpath(os.path.realpath(link_),projBasePath)).startswith('local')):
-                links.append(link_)
-        elif (os.path.isdir(link_)):
-            makeLinks(link_, os.path.join(newVPath, file), destinationVersion, sourceVersion)
+        file_path = os.path.join(currentVPath, file)
+        #If is a link:
+        if (os.path.islink(file_path)):
+            #Check if the file linked belongs to local/*
+            if ((os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('local')):
+                links.append(file_path)
+        #If it's a directory, recursively calls makeLinks on it, to clone its content        
+        elif (os.path.isdir(file_path)):
+            makeLinks(file_path, os.path.join(newVPath, file), destinationVersion, sourceVersion)
         
     for link in links:
         realPath =  os.path.realpath(link)
@@ -45,16 +48,19 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
         n = os.path.splitext(fileName)
 
         version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
+        #Files in local/modules belongs to a sub-module of the project and behaves differently (see later)
         belongs_to_module = (os.path.relpath(realPath,projBasePath)).startswith(os.path.join('local', 'modules'))
 
+        #Files not in local/modules and that ends in _{old_version_suffix}
+        #are cloned, with the new version in the filename
+        #(i.e. local/../file_v1.txt  =>  local/../file_v2.txt)
         if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
-        
             new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
-
             newFilename = n[0].removesuffix(version_suffix) + new_version_suffix + n[1]
             newFilePath = os.path.join(os.path.dirname(realPath), newFilename)
             copyFile(realPath, newFilePath)
             makeLink(newFilePath, os.path.join(newVPath, os.path.basename(link)))
+        #Other files, included modules, are not copied, only linked in the new version
         else :
             makeLink(realPath, os.path.join(newVPath, os.path.basename(link)))
 
@@ -75,10 +81,13 @@ def cloneVersion(sourceVersion, destinationVersion):
     if (projBasePath == None or len(projBasePath)==0):
         exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
 
+    #Defines PATHS to current version and new version
     newVPath = os.path.join(projBasePath, "dataset", destinationVersion)
     currentVPath = os.path.join(projBasePath, "dataset", sourceVersion)
 
+    #Check: cannot generate a version into a sub-directory or parent directory of the current version
     prevent_infinite_recursion(sourceVersion, destinationVersion)
+
     if (os.path.isdir(newVPath)):
         exit(f"Error - Version {newVPath} already exists")
     if (not os.path.isdir(projBasePath)):
@@ -88,8 +97,9 @@ def cloneVersion(sourceVersion, destinationVersion):
     if (not os.path.isdir(currentVPath)):
         exit(f"Error - Could not find  current version path {currentVPath}")
 
-
+    #Generate directory for new version if not existing
     os.makedirs(newVPath, exist_ok = True)
+    #Generate system links
     makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion)    
     executionDir = os.getcwd()
     os.chdir(projBasePath)

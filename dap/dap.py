@@ -5,9 +5,6 @@ from .clone_prj import cloneVersion
 from .add_module import add_module, add_module_no_symlink
 app = typer.Typer()
 
-#Opt per non creare env -> o no env o env 
-#Derivare env da un altro env
-#Create version
 
 @app.command()
 def create(

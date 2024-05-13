@@ -234,6 +234,7 @@ def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMa
     basePath = os.path.join(os.getcwd(), projectName_)
     execute(False, remote_repo)
 
+
 def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
     global basePath
     global versionN
@@ -259,7 +260,6 @@ def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
 
 def main():
     print('Use dap create --help')
-    
 
 if __name__ == '__main__':
 	main()

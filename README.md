@@ -1,6 +1,6 @@
 # dap
 
-TODO short description
+Bioinformatics project management tool.
 
 # Installation
 
