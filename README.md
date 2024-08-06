@@ -1,6 +1,6 @@
-# dap
+# DAP
 
-Bioinformatics project management tool.
+Data Analisys Project is a template and a tool to organize you projects. Suited for bioinformatic or data anaysis project in general.
 
 # Installation
 
