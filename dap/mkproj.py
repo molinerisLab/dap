@@ -199,7 +199,7 @@ source $CONDA_BASE/etc/profile.d/conda.sh
             path_to_model = os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,'dapdefault.yml')
             bash_script = bash_script + f"\nconda env create --name $(basename $PWD)_Env --file={path_to_model}"
         else:
-            bash_script = bash_script + f"\nconda env create --name $(basename $PWD)_Env --clone {source_env}"
+            bash_script = bash_script + f"\nconda create --name $(basename $PWD)_Env --clone {source_env}"
         bash_script = bash_script + "\nconda env export > local/env/environment.yml"
         subprocess.run(bash_script, shell=True, check=True, executable='/bin/bash')
     
