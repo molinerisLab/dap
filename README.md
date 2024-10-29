@@ -1,3 +1,7 @@
+<!-- presenting a local directory that contains all the rules and configuration files and a dataset directory where one can reproduce different versions of the same analysis. Each dataset directory contains the link to the same Snakefile, allowing the same pipeline to be run. When generating a new version, the configuration files are copied and the version-specific file is linked in the directory to be specifically set. Environments are managed using conda [PMID: 29967506] to ensure the portability of the module. ![image](https://github.com/user-attachments/assets/ca99f7fc-9f4c-4851-ad33-65cb7d7ef151)
+-->
+
+
 # DAP
 
 Data Analisys Project is a template and a tool to organize you projects. Suited for bioinformatic or data anaysis project in general.
