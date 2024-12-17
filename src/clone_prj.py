@@ -56,7 +56,10 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
         #(i.e. local/../file_v1.txt  =>  local/../file_v2.txt)
         if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
             new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
-            newFilename = n[0].removesuffix(version_suffix) + new_version_suffix + n[1]
+            if (n[0].endswith(version_suffix)):
+                newFilename = n[0][:-len(version_suffix)] + new_version_suffix + n[1]
+            else:
+                newFilename = n[0] + "_" + new_version_suffix + n[1]
             newFilePath = os.path.join(os.path.dirname(realPath), newFilename)
             copyFile(realPath, newFilePath)
             makeLink(newFilePath, os.path.join(newVPath, os.path.basename(link)))

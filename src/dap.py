@@ -1,8 +1,17 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+# Add the script's directory to sys.path
+script_dir = os.path.dirname(os.path.realpath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
+
 import typer
 from typing import Optional
-from .mkproj import createProject, updateProject
-from .clone_prj import cloneVersion
-from .add_module import add_module, add_module_no_symlink
+from mkproj import createProject, updateProject
+from clone_prj import cloneVersion
+from add_module import add_module, add_module_no_symlink
 app = typer.Typer()
 
 

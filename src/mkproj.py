@@ -169,7 +169,7 @@ def execute(exist_ok, remote_repo = None):
     #Copies the files
     for functionality in functionalities:
         for fileToCopy in filesToCopy[functionality]:
-            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,fileToCopy[0]), fileToCopy[1], exist_ok)
+            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)) ,fileToCopy[0]), fileToCopy[1], exist_ok)
     #Creates the new files
     for functionality in functionalities:
         for fileToCreate in filesToCreate[functionality]:
@@ -196,7 +196,7 @@ CONDA_BASE=$(conda info --base)
 source $CONDA_BASE/etc/profile.d/conda.sh
         """
         if (source_env == None):
-            path_to_model = os.path.join(os.path.dirname(os.path.realpath(__file__)), "model" ,'dapdefault.yml')
+            path_to_model = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,'dapdefault.yml')
             bash_script = bash_script + f"\nconda env create --name $(basename $PWD)_Env --file={path_to_model}"
         else:
             bash_script = bash_script + f"\nconda env create --name $(basename $PWD)_Env --clone {source_env}"

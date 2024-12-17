@@ -6,8 +6,8 @@ package:
   version: "{{ version }}"
 
 source: 
-  git_url: https://github.com/molinerisLab/dap.git
-  git_ref: 0.2
+  path: ../src
+  
 build:
   noarch: python
 
@@ -16,7 +16,7 @@ requirements:
     - pip
     - python
   run:
-    - python >3
+    - python >3.6
     - typer
     - gitpython
 

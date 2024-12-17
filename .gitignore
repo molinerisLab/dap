@@ -1,3 +1,5 @@
 conda_recipe/builds/*
 conda_recipe/outputdir/*
-
+**__pycache__
+conda_recipe/package
+conda_recipe/platforms
