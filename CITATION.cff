@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: DAP
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Marco
+    family-names: Masera
+    email: marco.masera@unito.it
+    affiliation: Università di Torino
+  - given-names: Chiara
+    family-names: Cicconetti
+    email: chiara.cicconetti@unito.it
+    affiliation: Università di Torino
+  - given-names: Ivan
+    family-names: Molineris
+    email: ivan.molineris@unito.it
+    affiliation: Università di Torino
+    orcid: 'https://orcid.org/0000-0003-2102-0804'
+repository-code: 'https://github.com/molinerisLab/dap'
+license: AGPL-3.0
