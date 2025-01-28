@@ -40,8 +40,9 @@ def update(
 
 @app.command()
 def clone(sourceversion: str = typer.Argument(..., help="Version of the project to be cloned"),
-        newversion: str = typer.Argument(..., help="Version of the project to be generated")):
-    cloneVersion(sourceversion, newversion)
+        newversion: str = typer.Argument(..., help="Version of the project to be generated"),
+        link_All_Data: bool = False):
+    cloneVersion(sourceversion, newversion, link_All_Data)
 
 #name: Optional[str] = typer.Argument(None)
 """@app.command()

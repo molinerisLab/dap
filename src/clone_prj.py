@@ -28,19 +28,22 @@ def copyFile(sourcePath, destinationPath):
     os.chdir(executionDir)
 
 
-def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion):
+def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_all_links):
     #Generate a list of sys links to copy
     links = []
     for file in os.listdir(currentVPath):
         file_path = os.path.join(currentVPath, file)
         #If is a link:
         if (os.path.islink(file_path)):
-            #Check if the file linked belongs to local/*
-            if ((os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('local')):
+            #If makeLinks is false, check if the file linked belongs to local/*
+            if (make_all_links or (os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('local')):
                 links.append(file_path)
         #If it's a directory, recursively calls makeLinks on it, to clone its content        
         elif (os.path.isdir(file_path)):
-            makeLinks(file_path, os.path.join(newVPath, file), destinationVersion, sourceVersion)
+            makeLinks(file_path, os.path.join(newVPath, file), destinationVersion, sourceVersion,make_all_links)
+        elif (make_all_links):
+            links.append(os.path.join(currentVPath, file))
+
         
     for link in links:
         realPath =  os.path.realpath(link)
@@ -77,7 +80,7 @@ def prevent_infinite_recursion(source_dir, destination_dir):
         exit(f"Error - {source_dir} is a subversion of {destination_dir}. Cannot clone it.")
 
 
-def cloneVersion(sourceVersion, destinationVersion):
+def cloneVersion(sourceVersion, destinationVersion, linkAllData):
     global projBasePath
     projBasePath = os.getenv('PRJ_ROOT') 
 
@@ -103,7 +106,7 @@ def cloneVersion(sourceVersion, destinationVersion):
     #Generate directory for new version if not existing
     os.makedirs(newVPath, exist_ok = True)
     #Generate system links
-    makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion)    
+    makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, linkAllData)    
     executionDir = os.getcwd()
     os.chdir(projBasePath)
     os.system("git commit -m \"Version {} created\"".format(destinationVersion))
