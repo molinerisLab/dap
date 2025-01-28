@@ -6,6 +6,42 @@
 
 Data Analisys Project is a template and a tool to organize you projects. Suited for bioinformatic or data anaysis project in general.
 
+# The DAP tree
+
+## Example of directory tree created with Snakemake template:
+```
+ProjectName
+├── dataset
+│   ├── V1
+│   │   ├── Snakefile (symlink -->)
+│   │   ├── config.yaml (symlink -->)
+│   │   ├── Snakefile_versioned.sk (symlink -->)
+├── local
+│   ├── src
+│   ├── bin
+│   ├── env
+│   ├── rules
+│   │  ├── Snakefile
+│   ├── config
+│   │  ├── config_V1.mk
+│   │  ├── Snakefile_versioned_V1.sk
+│   ├── data
+│   ├── modules
+```
+
+### File `snakemake_versioned.snk`
+
+The `snakemake_versioned.snk` file is dedicated to rules and modifications that are **specific to the current project** and should neither be integrated into the main pipeline nor reused in future projects. The name “_versioned” reflects the idea of being able to **override** rules already present in the original `Snakefile` based on particular needs or versions of the project.
+
+In practice, this file becomes the ideal place to:
+
+1. **Replace or override** existing rules to handle very specific use cases that apply only to the current version of the project.  
+   *Example*: if you need to physically copy FASTQ files instead of creating symbolic links, define the new copy rule here rather than in the main `Snakefile`.
+
+2. **Add ad hoc solutions** that you do not plan to use in other projects, and therefore should not be permanently included in the standard pipeline.
+
+It is recommended to **place** the `snakemake_versioned.snk` file in the same directory as the main `Snakefile`, to make it easier to navigate and to keep the project structure clean.
+
 # Installation
 
 Linux and Mac OSX are supported.
@@ -75,27 +111,6 @@ The command `dap create` creates a new project in the current working directory;
 * [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
 * [--source_env=MyEnvironment]: optionally the user can specify an existing conda environment that is to be cloned when creating the project environment.
  
-### Example of directory tree created with Snakemake template:
-```
-ProjectName
-├── dataset
-│   ├── V1
-│   │   ├── Snakefile (symlink -->)
-│   │   ├── config.yaml (symlink -->)
-│   │   ├── Snakefile_versioned.sk (symlink -->)
-├── local
-│   ├── src
-│   ├── bin
-│   ├── env
-│   ├── rules
-│   │  ├── Snakefile
-│   ├── config
-│   │  ├── config_V1.mk
-│   │  ├── Snakefile_versioned_V1.sk
-│   ├── data
-│   ├── modules
-```
-
 ## Update existing project
 `dap update` is to be executed inside the project directory and allows for the creation of new versions or the update of an existing version by adding different templates.
 Two different use cases for dap update are:
@@ -130,17 +145,6 @@ These operations are not allowed:
 * dap clone humans humans/v3 --> cannot clone entire directory into a subdirectory of it.
 * dap clone humans/v1 humans --> cannot clone directory into parent (or ancestor) directory.
 
-## dap addmodule
-**Currently not available**
-It imports an external project inside the current project as a module, cloning it from a remote repository. 
-The module is added as an sub-module in git.
-### commands
-`dap addmodule RepoUrl ProjectVersion ModuleVersion`
-* RepoUrl: URL of the remote repository.
-* ProjectVersion: path to the directory containing the project's version where you want to import the module, relative to PRJ_ROOT. In most cases it's a path structured as **dataset/{ProjectVersion}**
-* ModuleVersion: name of the module's version we want to import.
-
-ProjectVersion and ModuleVersion are optional. If not provided, dap will clone the project inside local/modules without creating version-specific symlinks.
 
 ### Compliance of the project
 The project to be imported as a module must be compliant with the structure of the projects created with **dap**. It must contain the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*.
