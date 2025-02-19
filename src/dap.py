@@ -12,6 +12,19 @@ from clone_prj import cloneVersion
 
 app = typer.Typer()
 
+def hello():
+    intro = """
+
+    ||||       ||||||    |||||||
+    ||  ||    ||    ||   ||    ||
+    ||   ||   ||    ||   ||    ||
+    ||   ||   ||||||||   |||||||
+    ||  ||    ||    ||   ||
+    ||||      ||    ||   ||
+    
+    Data Analysis Project (Management)
+    """
+    print(intro)
 
 @app.command()
 def create(
@@ -19,7 +32,7 @@ def create(
            projectversion: str = typer.Argument(..., help="The base version of the project - es. V1"),
            remote_git_repo: str = typer.Option(None, "--remote_repo", help="Optional: specifiy a remote git repo URL and initialize the project inside it"),
            source_environment: str = typer.Option(None, "--source_env", help="Optional: specify a conda yaml file to populate the project environment - the environment will be cloned")):
-
+    hello()
     createProject(projectname, projectversion, source_environment, remote_git_repo)
 
 
@@ -27,6 +40,7 @@ def create(
 def clone(sourceversion: str = typer.Argument(..., help="Version of the project to be cloned"),
         newversion: str = typer.Argument(..., help="Version of the project to be generated"),
         link_All_Data: bool = False):
+    hello()
     cloneVersion(sourceversion, newversion, link_All_Data)
 
 def run_dap():
