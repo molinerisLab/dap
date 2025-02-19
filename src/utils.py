@@ -2,7 +2,7 @@ import shutil
 import os
 
 
-def copyFile(source_path, destination_path, exist_ok):
+def copy_file(source_path, destination_path, exist_ok=False):
     if (os.path.isfile(destination_path) and exist_ok):
         return 
     shutil.copy2(source_path, destination_path)

@@ -7,9 +7,8 @@ if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 import typer
 from typing import Optional
-from mkproj import createProject, updateProject
+from mkproj import createProject
 from clone_prj import cloneVersion
-from add_module import add_module, add_module_no_symlink
 
 app = typer.Typer()
 
