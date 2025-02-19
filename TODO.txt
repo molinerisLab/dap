@@ -1,0 +1,13 @@
+
+
+DAP 2.0:
+
+-Code reformat and clean up
+-Rename directory structure
+-Remove make support 
+-Option for git add remote during dap init 
+-dap info: explaining philosophy
+-dap welcome screen
+-Conda env created inside envs
+    -remember the .gitignore
+    -Update .envrc

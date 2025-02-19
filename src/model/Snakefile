@@ -1,6 +1,13 @@
 import os
 
-configfile: "config.yaml"
+#Project-level Snakefile
+#for version specific rules, modify Snakefile_versioned.sk
 
+PRJ_ROOT=os.environ.get("PRJ_ROOT")
+# In order of priority, include general config, version config, .smk file, version Snakefile
+configfile: "config_general.yaml"
+configfile: "config.yaml"
+include: "config.smk"
 if os.path.exists("Snakefile_versioned.sk"):
     include: "Snakefile_versioned.sk"
+

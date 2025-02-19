@@ -35,8 +35,8 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
         file_path = os.path.join(currentVPath, file)
         #If is a link:
         if (os.path.islink(file_path)):
-            #If makeLinks is false, check if the file linked belongs to local/*
-            if (make_all_links or (os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('local')):
+            #If makeLinks is false, check if the file linked belongs to workflow/*
+            if (make_all_links or (os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('workflow')):
                 links.append(file_path)
         #If it's a directory, recursively calls makeLinks on it, to clone its content        
         elif (os.path.isdir(file_path)):
@@ -50,15 +50,15 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
         fileName = os.path.basename(realPath)
         n = os.path.splitext(fileName)
 
-        version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
-        #Files in local/modules belongs to a sub-module of the project and behaves differently (see later)
-        belongs_to_module = (os.path.relpath(realPath,projBasePath)).startswith(os.path.join('local', 'modules'))
+        version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'workspaces')).replace('/','_')
+        #Files in workflow/modules belongs to a sub-module of the project and behaves differently (see later)
+        belongs_to_module = (os.path.relpath(realPath,projBasePath)).startswith(os.path.join('workflow', 'modules'))
 
-        #Files not in local/modules and that ends in _{old_version_suffix}
+        #Files not in workflow/modules and that ends in _{old_version_suffix}
         #are cloned, with the new version in the filename
-        #(i.e. local/../file_v1.txt  =>  local/../file_v2.txt)
+        #(i.e. workflow/../file_v1.txt  =>  workflow/../file_v2.txt)
         if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
-            new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'dataset')).replace('/','_')
+            new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'workspaces')).replace('/','_')
             if (n[0].endswith(version_suffix)):
                 newFilename = n[0][:-len(version_suffix)] + new_version_suffix + n[1]
             else:
@@ -88,8 +88,8 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
         exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
 
     #Defines PATHS to current version and new version
-    newVPath = os.path.join(projBasePath, "dataset", destinationVersion)
-    currentVPath = os.path.join(projBasePath, "dataset", sourceVersion)
+    newVPath = os.path.join(projBasePath, "workspaces", destinationVersion)
+    currentVPath = os.path.join(projBasePath, "workspaces", sourceVersion)
 
     #Check: cannot generate a version into a sub-directory or parent directory of the current version
     prevent_infinite_recursion(sourceVersion, destinationVersion)
@@ -98,8 +98,8 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
         exit(f"Error - Version {newVPath} already exists")
     if (not os.path.isdir(projBasePath)):
         exit(f"Error - Could not find project directory {projBasePath}.")
-    if (not (os.path.isdir(os.path.join(projBasePath, "dataset")) and os.path.isdir(os.path.join(projBasePath, "local")))):
-        exit(f"Error - Project directory {projBasePath} does not contain dataset or local subfolders.")
+    if (not (os.path.isdir(os.path.join(projBasePath, "workspaces")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
+        exit(f"Error - Project directory {projBasePath} does not contain workspaces or workflow subfolders.")
     if (not os.path.isdir(currentVPath)):
         exit(f"Error - Could not find  current version path {currentVPath}")
 

@@ -1,262 +1,113 @@
 import os
 from sys import exit
 import subprocess
-from git import Repo
-
-basePath =  os.getcwd()
-versionN = ""
-functionalities = ['default']
-source_env = None
-useMake = False; useBMake = False; useSnakeMake = True
+from utils import copy_file, getRelativePath, run_command, version_path_ok
 
 
-#Base folder tree to be created - all paths relative to PRJ_PATH
-baseDirectories = [
-        'dataset/',
-        'local/bin', 'local/src/', 'local/env', 'local/rules',
-        'local/config/', 'local/data/', 'local/modules',
+
+def get_files(version_name):
+    version_name = version_path_ok(version_name)
+    base_directories = [
+        'workspaces/', f'workspaces/{version_name}'
+        'workflow/scripts', 'workflow/env', 'workflow/rules',
+        'workflow/config/', 
     ]
 
-#Files to be copied in the project. Destination is relative to PRJ_PATH; source files most be inside the model folder.
-filesToCopy = {
-    'default': [
-        ['.gitignore', '.gitignore'],
-        ['.envrc', '.envrc']
-    ],
-    'makeOrBmake': [
-        ['makefile', 'local/rules/makefile'],
-        ['_footer.mk', 'local/rules/_footer.mk'],
-        ['_header.mk', 'local/rules/_header.mk']
-    ],
-    'snakemake': [
-        ['Snakefile','local/rules/Snakefile']
-    ],
-    'bmake': [],
-    'make': []
-}
- 
-#Files to be created, paths relative to PRJ_PATH
-filesToCreate = {
-    'default': [],
-    'make': [],
-    'snakemake': [],
-    'bmake': ['local/rules/bmakefile.mk'],
-    'makeOrBmake': []
-}
-#Files to be created, paths relative to PRJ_PATH, where '_{versionName}' is added.
-#i.e. local/src/example.txt a local/src/example_V1.txt
-filesToCreateVersionSpecific = {
-    'default': [],
-    'make': [
-        ['local/config/config', '.mk'], 
-        ['local/config/makefile_versioned', '.mk']
-    ],
-    'snakemake': [
-        ['local/config/config', '.yaml'],
-        ['local/config/Snakefile_versioned','.sk']
-    ],
-    'bmake': [
-        ['local/config/config_bmake', '.mk'], ['local/config/bmakefile_versioned', '.mk']
-    ],
-    'makeOrBmake': []
-}
-#Sym links. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
-filesToLink = {
-    'default': [], 
-    'makeOrBmake': [
-        ['local/rules/makefile', 'makefile']
-    ],
-    'bmake': [ 
-        ['local/rules/bmakefile.mk', 'bmakefile'] 
-    ],
-    'make': [],
-    'snakemake': [
-        ['local/rules/Snakefile', 'Snakefile']
+    #Files to be copied in the project. Destination is relative to PRJ_PATH; source files must be inside the model folder.
+    files_to_copy = [
+            ['.gitignore', '.gitignore'],
+            ['.envrc', '.envrc'],
+            ['Snakefile','workflow/rules/Snakefile'],
     ]
-}
 
-#Sym links for version specific files. Source path relative to PRJ_ROOT - destination relative to dataset/{projectVersion}
-#to source path '_{versionName}' is added.
-#[['source', 'dest', 'sourceFormat']],
-filesToLinkVersionSpecific = {
-    'default':[], 
-    'make': [
-        ['local/config/config', 'config.mk', '.mk'], 
-        ['local/config/makefile_versioned', 'makefile_versioned.mk', '.mk']
-    ],
-    'snakemake': [
-        ['local/config/config', 'config.yaml' , '.yaml'], 
-        ['local/config/Snakefile_versioned', 'Snakefile_versioned.sk', '.sk']
-    ],
-    'bmake': [
-        ['local/config/config_bmake', 'config_bmake.mk', '.mk'], 
-        ['local/config/bmakefile_versioned', 'bmakefile_versioned.mk', '.mk']
-    ],
-    'makeOrBmake': []
-}
+    files_to_create = [
+        ['workflow/config/config_general.yaml'],
+        ['workflow/config/config.smk'],
+        [f'workflow/config/config_{version_name}.yaml'],
+        [f'workflow/rules/Snakefile_versioned_{version_name}.sk']
+    ]
 
-def makeFolder(path):
-    os.makedirs(os.path.join(basePath, path), exist_ok = True)
+    #Sym links. Source path relative to PRJ_ROOT - destination relative to workspaces/{projectVersion}
+    filesToLink = [
+            ['workflow/rules/Snakefile', 'Snakefile'],
+            ['workflow/config/config_general.yaml', 'config_general.yaml'],
+            ['workflow/config/config.smk', 'config.smk'],
+            [f'workflow/config/config_{version_name}.yaml', 'config.yaml'],
+            [f'workflow/rules/Snakefile_versioned_{version_name}.sk',f'workflow/rules/Snakefile_versioned.sk']
+    ]
+    return base_directories, files_to_copy, files_to_create, filesToLink
 
-def makeFile(path, exist_ok):
-    if (exist_ok and os.path.isfile(os.path.join(basePath, path))):
+def make_directory(base_path, path):
+    os.makedirs(os.path.join(base_path, path), exist_ok = True)
+
+def make_file(base_path, path, exist_ok):
+    if (exist_ok and os.path.isfile(os.path.join(base_path, path))):
         return
-    with open(os.path.join(basePath, path), 'w') as f:
+    with open(os.path.join(base_path, path), 'w') as f:
         f.write(' ')
 
-def getRelativePath(path, fromPath):
-    fromPath = os.path.split(fromPath)[0]
-    return os.path.relpath(path, start=fromPath)
 
-def makeLink(sourcePath, destinationPath, exist_ok):
-    sourcePath = os.path.join(basePath, sourcePath)
-    destinationPath = os.path.join(basePath, destinationPath)
-    if (exist_ok and os.path.isfile(destinationPath)):
-        return
+def make_link(base_path, source_path, destination_path):
+    source_path = os.path.join(base_path, source_path)
+    destination_path = os.path.join(base_path, destination_path)
 
-    os.symlink(getRelativePath(sourcePath, destinationPath), destinationPath)
+    os.symlink(getRelativePath(source_path, destination_path), destination_path)
     #Aggiunge a git nonostante gitignore
-    executionDir = os.getcwd()
-    os.chdir(basePath)
-    os.system("git add -f {}".format(destinationPath))
-    os.chdir(executionDir)
+    run_command(base_path, "git add -f {}".format(destination_path))
 
-
-#Copies a file - not super efficient way to do so but this way it does not need any external dependency.
-def copyFile(sourcePath, destinationPath, exist_ok):
-    #Note: sourcePath is absolute path
-    destinationPath = os.path.join(basePath, destinationPath)
-    if (exist_ok and os.path.isfile(destinationPath)):
-        return
-
-    with open(sourcePath, 'r') as source:
-        with open(destinationPath,'w') as dest:
-            for line in source:
-                dest.write(line)
-
-
-
-def execute(exist_ok, remote_repo = None):
-    #Updates paths for symlinks, adding dataset/{versionName}
-    for functionality in functionalities:
-        for link in filesToLink[functionality]:
-            link[1] = os.path.join(basePath, "dataset",versionN, link[1])
-    for functionality in functionalities:
-        for link in filesToLinkVersionSpecific[functionality]:
-            link[1] = os.path.join(basePath, "dataset",versionN, link[1])
-        
-    #Makes project directory
-    if (not exist_ok):
-        if (os.path.isdir(basePath)):
-            exit(f"Error - Target project directory {basePath} already exists.")
-        if (remote_repo == None): #If we clone from remote repo the directory should not already exist
-            os.makedirs(basePath, exist_ok=True)
-
-    #Creates git repo
-    if (not exist_ok):
-        if (remote_repo == None):
-            executionDir = os.getcwd()
-            os.chdir(basePath)
-            os.chdir(executionDir)
-            os.system("git init") #git init -b initialBranchName
-        else:
-            r = Repo.clone_from(url = remote_repo, to_path = basePath)
-    makeFolder("dataset/"+versionN)
-        
-    #Creates the directory tree
-    for directory in baseDirectories:
-        makeFolder(directory)
-    #Copies the files
-    for functionality in functionalities:
-        for fileToCopy in filesToCopy[functionality]:
-            copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)) ,fileToCopy[0]), fileToCopy[1], exist_ok)
-    #Creates the new files
-    for functionality in functionalities:
-        for fileToCreate in filesToCreate[functionality]:
-            makeFile(fileToCreate, exist_ok)
-    for functionality in functionalities:
-        for fileToCreateV in filesToCreateVersionSpecific[functionality]:
-            makeFile(fileToCreateV[0] + "_" + versionN.replace('/','_') + fileToCreateV[1], exist_ok)
-    #Makes symlinks
-    for functionality in functionalities:
-        for fileToLink in filesToLink[functionality]:
-            makeLink(fileToLink[0], fileToLink[1], exist_ok)
-    for functionality in functionalities:
-        for fileToLink in filesToLinkVersionSpecific[functionality]:
-            makeLink(fileToLink[0] + "_" + versionN.replace('/','_') + fileToLink[2], fileToLink[1], exist_ok)
-     
-    #Creates conda env; git commit.
-    executionDir = os.getcwd()
-    os.chdir(basePath)
-    
-    #Conda - creation of default env
-    if (not exist_ok):
-        bash_script = """
-CONDA_BASE=$(conda info --base)
-source $CONDA_BASE/etc/profile.d/conda.sh
-        """
-        if (source_env == None):
-            path_to_model = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,'dapdefault.yml')
-            bash_script = bash_script + f"\nconda env create --name $(basename $PWD)_Env --file={path_to_model}"
-        else:
-            bash_script = bash_script + f"\nconda create --name $(basename $PWD)_Env --clone {source_env}"
-        bash_script = bash_script + "\nconda env export > local/env/environment.yml"
-        subprocess.run(bash_script, shell=True, check=True, executable='/bin/bash')
-    
-    #Git - final commit
-    os.system("git add .")
-    if (not exist_ok):
-        os.system("git commit -m \"project created\"")
-    else:
-        os.system("git commit -m \"project updated\"")
-    os.chdir(executionDir)
 
 
 #Initialize global variables and launches execute()
-def createProject(projectName_, projectVersion_, useSnakeMake_, useMake_, useBMake_, source_env_, remote_repo):
-    global basePath
-    global versionN
-    global functionalities
-    global source_env
-    global useMake; global useBMake; global useSnakeMake
+def createProject(project_name, project_version, source_env, remote_repo):
+    base_path = os.path.join(os.getcwd(), project_name)
+    if (source_env is not None):
+        source_env = os.path.abspath(source_env)
+    
+    #Makes project directory
+    if (os.path.isdir(basePath)):
+        exit(f"Error - Target project directory {basePath} already exists.")
+    os.makedirs(basePath, exist_ok=False)
+    #Set up Git repository
+    run_command(base_path, "git init")
+    if (repote_repo is not None):
+        run_command(base_path, f"git remote add origin {remote_repo}")
+    
+    base_directories, files_to_copy, files_to_create, filesToLink = get_files(project_version)
 
-    source_env = source_env_
-    useBMake = useBMake_; useSnakeMake = useSnakeMake_; useMake = useMake_
-    if (useBMake):
-        functionalities.append('bmake')
-    if (useSnakeMake):
-        functionalities.append('snakemake')
-    if (useMake):
-        functionalities.append('make')
-    if (useMake or useBMake):
-        functionalities.append('makeOrBmake')
-    versionN = projectVersion_
-    basePath = os.path.join(os.getcwd(), projectName_)
-    execute(False, remote_repo)
+    #Create directory structure
+    for directory in base_directories:
+        make_directory(base_path, directory)
+    #Copy files from model
+    for file in files_to_copy:
+        destination = os.path.join(base_path, file[1])
+        copyFile(os.path.join(os.path.dirname(os.path.realpath(__file__)) ,file[0]), destination, True)
+    for file in files_to_create:
+        make_file(base_path, file)
+    for file in filesToLink:
+        make_link(base_path, fileToLink[0], fileToLink[1])
+
+    #Create conda environment
+    has_mamba = (run_command(base_path, "which mamba"))==0
+    if (has_mamba):
+        conda_or_mamba = "mamba"
+    else:
+        conda_or_mamba = "conda"
+    command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {base_path}"
+    
+    if (source_env == None):
+        source_env = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,'dapdefault.yml')
+    copy_file(source_env, os.path.join(base_path, "workflow", "env", "env.yaml"))
+
+    bash_script += f"\{conda_or_mamba} env create -f {os.path.join(base_path, "workflow", "env", "env.yaml")} -p  {os.path.join(base_path, "workflow", "env","env")}"
+    subprocess.run(bash_script, shell=True, check=True, executable='/bin/bash')
+    
+    #Git - final commit
+    run_command(base_path, """git add . && git commit -m "created new project" """)
+    
+
+    
 
 
-def updateProject(projectVersion_, useSnakeMake_, useMake_, useBMake_):
-    global basePath
-    global versionN
-    global functionalities
-    global useMake; global useBMake; global useSnakeMake
-
-    useBMake = useBMake_; useSnakeMake = useSnakeMake_; useMake = useMake_
-    if (useBMake):
-        functionalities.append('bmake')
-    if (useSnakeMake):
-        functionalities.append('snakemake')
-    if (useMake):
-        functionalities.append('make')
-    if (useMake or useBMake):
-        functionalities.append('makeOrBmake')
-    versionN = projectVersion_
-    basePath = os.getenv('PRJ_ROOT')
-    if (basePath == None or len(basePath)==0):
-        exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
-    if (not os.path.isdir(basePath)):
-        exit(f"Error - Could not find base project directory {basePath}")
-    execute(True)
 
 def main():
     print('Use dap create --help')
