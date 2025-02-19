@@ -63,25 +63,25 @@ Dap can be installed outside of conda using Pip. The disadvantage of this strate
 
 ### Instal dependencies
 
-**git**
+#### git
 
-Install `git` on your sistem. A good guide for this is https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+Install `git` on your sistem. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 
 Configure git with the command
 
 ```git config --global --edit```
 
-**conda**
+#### conda
 
 Follow the instruction on https://docs.conda.io/projects/conda/en/latest/user-guide/install/
 
-**direnv**
+#### direnv
 
 You can follow the instruction here: https://direnv.net/docs/installation.html
 
-Alternartiveli you can use conda `conda install -c conda-forge direnv`
+Alternartively you can use conda `conda install -c conda-forge direnv`
 
-**Gitpython**
+#### Gitpython
 Run  `pip install gitpython`
 
 ### Install Dap with Pip
