@@ -1,54 +1,25 @@
-<!-- presenting a local directory that contains all the rules and configuration files and a dataset directory where one can reproduce different versions of the same analysis. Each dataset directory contains the link to the same Snakefile, allowing the same pipeline to be run. When generating a new version, the configuration files are copied and the version-specific file is linked in the directory to be specifically set. Environments are managed using conda [PMID: 29967506] to ensure the portability of the module. ![image](https://github.com/user-attachments/assets/ca99f7fc-9f4c-4851-ad33-65cb7d7ef151)
--->
-
-
 # DAP
 
-Data Analisys Project is a template and a tool to organize you projects. Suited for bioinformatic or data anaysis project in general.
+DAP (Data Analisys Project) is a template and a project management tool, suited for bioinformatics or data anaysis project in general.
 
-# The DAP tree
+DAP encapsulates some conventions on how to organize projects and offers tools to manage them.
 
-## Example of directory tree created with Snakemake template:
-```
-ProjectName
-├── dataset
-│   ├── V1
-│   │   ├── Snakefile (symlink -->)
-│   │   ├── config.yaml (symlink -->)
-│   │   ├── Snakefile_versioned.sk (symlink -->)
-├── local
-│   ├── src
-│   ├── bin
-│   ├── env
-│   ├── rules
-│   │  ├── Snakefile
-│   ├── config
-│   │  ├── config_V1.mk
-│   │  ├── Snakefile_versioned_V1.sk
-│   ├── data
-│   ├── modules
-```
+DAP conventions aim to:
+* Facilitate project versioning
+   * Creation, editing of versions, isolation of version-specific logic and configuration.
+* Push toward sustainable use of conda environments.
+   * one project <--> one conda environment
+   * environment stored locally inside the project tree.
+   * environment automatically activated upon user entering the project directory.
 
-### File `snakemake_versioned.snk`
-
-The `snakemake_versioned.snk` file is dedicated to rules and modifications that are **specific to the current project** and should neither be integrated into the main pipeline nor reused in future projects. The name “_versioned” reflects the idea of being able to **override** rules already present in the original `Snakefile` based on particular needs or versions of the project.
-
-In practice, this file becomes the ideal place to:
-
-1. **Replace or override** existing rules to handle very specific use cases that apply only to the current version of the project.  
-   *Example*: if you need to physically copy FASTQ files instead of creating symbolic links, define the new copy rule here rather than in the main `Snakefile`.
-
-2. **Add ad hoc solutions** that you do not plan to use in other projects, and therefore should not be permanently included in the standard pipeline.
-
-It is recommended to **place** the `snakemake_versioned.snk` file in the same directory as the main `Snakefile`, to make it easier to navigate and to keep the project structure clean.
-
-# Installation
+# Usage
+## Installation
 
 Linux and Mac OSX are supported.
 
 Python >= 3 required.
 
-## Install dap with conda
+### Install dap with conda
 
 Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with the following command
 
@@ -56,84 +27,59 @@ Dap can be installed from Anaconda: https://anaconda.org/molinerislab/dap with t
 conda install -c molinerislab dap
 ```
 
-we advise to install it in the `base` environment, indeed dap will take care of handling project specific environments.
+we advise to install it in the `base` environment or in a specific one. This environment will be needed to create new projects.
 
-## Install dap outside conda
-Dap can be installed outside of conda using Pip. The disadvantage of this strategy is that dependencies must be installed manually.
+## The DAP tree
+The directory structure of a DAP project is made of two main components in its root:
+* The **Workflow** directory, containing the entire project's logic and configuration, both global and version-specific.
+   * The Workflow directory is **not** where the user stores the input files, results and it's not where the user works.
+* The **Workspaces** directory is where versions are kept and where the user running the workflow works. 
 
-### Instal dependencies
+![alt text](.img/dap_tree_workflow.png)
+![alt text](.img/dap_tree_workspaces.png)
 
-#### git
+The **workflow** directory has sub-directories for the configuration files, environment, rules and scripts.
 
-Install `git` on your sistem. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-
-Configure git with the command
-
-```git config --global --edit```
-
-#### conda
-
-Follow the instruction on https://docs.conda.io/projects/conda/en/latest/user-guide/install/
-
-#### direnv
-
-You can follow the instruction here: https://direnv.net/docs/installation.html
-
-Alternartively you can use conda `conda install -c conda-forge direnv`
-
-#### Gitpython
-Run  `pip install gitpython`
-
-### Install Dap with Pip
-
-After installing, direnv needs to be hooked into the shell:
-* for bash: add `eval "$(direnv hook bash)"` to your .bashrc file
-* for other shells: https://direnv.net/docs/hook.html
- 1. Clone this repository `git clone git@github.com:molinerisLab/dap.git dap`
- 1. Go to the newly created directory `cd dap`
- 1. Run `pip install .`
+The **workspaces** directory has sub-directories for all the versions created. Inside each version:
+* **Snakefile** is a symbolic link to *workflows/rules/Snakefile*
+* **Snakefile_versioned.sk**  is a symbolic link to *workflows/rules/Snakefile_versioned_{VERSION_NAME}*
+* **config_global.yaml** is a symbolic link to *workflows/config/config_global.yaml*
+* **config.yaml** is a symbolic link to *workflows/config/config_{VERSION_NAME}.yaml*.
 
 
-# Usage
-## Help is provided by this command:
-`dap --help`
+Basically, for rules and configuration, the user finds both global and version-specific files inside its version's directory. These files are links to files stored in the **workflow** directory, and the original files are managed by DAP.
+
+Version-specific rules and configurations always override global ones.
 
 ## Create a new project
-Go in the directory that host your projects or create a new one, e.g. `cd ~; mkdri prj; cd ~/prj`
-
 The command `dap create` creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
 
+```dap create [--source_env=MyEnvironment.yaml] [--remote-git-repo=https://..] ProjectName ProjectVersion```
 
-```dap create [--usesnakemake --usemake --usebmake][--source_env=MyEnvironment] ProjectName ProjectVersion```
+* **ProjectName**: the name of the project, which will correspond to the directory and the git repository created.
+* **ProjectVersion**: initial version of the project; the directory dataset/{ProjectVersion} is created. ProjectVersion might specify subfolders to be put inside dataset; i.e. *humans/v1* will create the directory *dataset/humans/v1* and a version named *humans_v1*
+* [--source_env=MyEnvironment]: optionally the user can specify the yaml of an existing conda environment that will be cloned. If not specified, a new, empty project environment will be created.
+* [--remote-git-repo=https://..]: optionally the user can connect the newly created git repository to a remote one.
 
-* ProjectName: the name of the project, which will correspond to the directory and the git repository created.
-* ProjectVersion: initial version of the project; the directory dataset/{ProjectVersion} is created. ProjectVersion might specify subfolders to be put inside dataset; i.e. *humans/v1* will create the directory *dataset/humans/v1* and a version named *humans_v1*
-* [--usesnakemake --usemake --usebmake]: creates the project with templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.
-* [--source_env=MyEnvironment]: optionally the user can specify an existing conda environment that is to be cloned when creating the project environment.
- 
-## Update existing project
-`dap update` is to be executed inside the project directory and allows for the creation of new versions or the update of an existing version by adding different templates.
-Two different use cases for dap update are:
-* You want to add a different template to your project version - i.e. you may have created the project with the Snakefile template but want to add the Make template
-* You want to create a new project version with empty version-specific rules.
+## Work inside a project
+Once the project is created with `dap create`, it is already set up with a git repository and a *.gitignore* file, a conda environment and a *direnv* file that automatize some bash context set-up.
 
-`dap update [--usesnakemake --usemake --usebmake] ProjectVersion`
-* ProjectVersion: version of the project where the operation is to be applied; if the version does not exist, it is created.
-* [--usesnakemake --usemake --usebmake]: adds the templates for Snakemake, Makefile and BMake. Many templates can be specified at the same time. **If no template is specified, Snakemake is used by default**.  **If one or more templates already exist, they are not changed**.
+Upon first entering the project directory, the user needs to authorize direnv with `direnv allow`. Once direnv is authorized, the conda environment and some environmental variables will be automatically set up upon entering the project. This includes:
+* **PRJ_ROOT** will point to the root of the project.
+* **The system PATH** will include *PRJ_ROOT/workflow/scripts*.
 
-**By running dap update, files already existing are never modified**
-
+The user can work in its current version in *workspaces/version_name*, modify and run the Snakefile.
 
 ## Create new version
-`dap clone` is to be executed inside the project directory and it creates a new version of the project by cloning an existing one.
+`dap clone` clones a project's version creating a new one. It needs to be executed inside the project directory.
 
 `dap clone SourceVersion NewVersion`
 * SourceVersion: Name of the version to be cloned.
 * NewVersion: Name of the new version.
 
-The command creates a new directory  *PRJ_ROOT/dataset/{NewVersion}*. Here, for each link inside *PRJ_ROOT/dataset{SourceVersion}*:
-* If the link refers to a non-version specific file: it copies the link.
-* If the link refers to a version specific file: it creates a copy of the file and adds a link to the new one in the version directory.
+The command creates a new directory  *worspaces/{NewVersion}*. Here, for each link inside *worspaces/{OldVersion}*:
+* If the link refers to a non-version specific file: the link is copied, the original file is not changed.
+* If the link refers to a version specific file: the version-specific file is copied, with updated name, and a link to the new file is created.
 **By convention, version specific files' names end with _{VersionName}.**
 
 ### Dap clone and sub-versions
@@ -146,7 +92,4 @@ These operations are not allowed:
 * dap clone humans/v1 humans --> cannot clone directory into parent (or ancestor) directory.
 
 
-### Compliance of the project
-The project to be imported as a module must be compliant with the structure of the projects created with **dap**. It must contain the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}*.
 
-The command, for each symbolic link inside the directory *INNER_PRJ_ROOT/dataset/{ModuleVersion}* creates a symbolic link in the directory *PRJ_ROOT/{ProjectVersion}/{ModuleName}* pointing to the same file.
