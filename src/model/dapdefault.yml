@@ -11,4 +11,3 @@ dependencies:
   - pip
   - python
   - typer
-prefix: /home/mmasera_local/anaconda3/envs/dap_default

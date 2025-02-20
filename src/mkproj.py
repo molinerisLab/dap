@@ -94,11 +94,39 @@ def createProject(project_name, project_version, source_env, remote_repo):
         conda_or_mamba = "conda"
     command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {base_path} && "
     
+    if (source_env is not None):
+        target_env = os.path.join(base_path, "workflow", "env", "env.yaml")
+        copy_file(source_env, target_env)
+        # Add dependencies for dap
+        with open(target_env, 'r') as file:
+            lines = file.readlines()
+        lines_to_add = [
+               " - colorama"
+               " - dap"
+               " - direnv"
+               " - pip"
+               " - python"
+               " - typer"
+        ]
+        for i, line in enumerate(lines):
+            if line.strip() == "dependencies:":
+                # Insert empty line after "dependencies:"
+                for l in lines_to_add:
+                    lines.insert(i + 1, l)
+                break
+        
+        # Write the modified content back to the file
+        with open(file_path, 'w') as file:
+            file.writelines(lines)
+
+        source_env = target_env
+
     if (source_env == None):
         source_env = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,'dapdefault.yml')
-    copy_file(source_env, os.path.join(base_path, "workflow", "env", "env.yaml"))
+        copy_file(source_env, os.path.join(base_path, "workflow", "env", "env.yaml"))
+    
 
-    command += f"""{conda_or_mamba} env create -f {os.path.join(base_path, "workflow", "env", "env.yaml")} -p  {os.path.join(base_path, "workflow", "env","env")}"""
+    command += f"""{conda_or_mamba} env create -f {source_env} -p  {os.path.join(base_path, "workflow", "env","env")}"""
     subprocess.run(command, shell=True, check=True, executable='/bin/bash')
     
     #Git - final commit
