@@ -95,28 +95,34 @@ def createProject(project_name, project_version, source_env, remote_repo):
     command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {base_path} && "
     
     if (source_env is not None):
+        import re
         target_env = os.path.join(base_path, "workflow", "env", "env.yaml")
         copy_file(source_env, target_env)
         # Add dependencies for dap
         with open(target_env, 'r') as file:
             lines = file.readlines()
         lines_to_add = [
-               " - colorama"
-               " - dap"
-               " - direnv"
-               " - pip"
-               " - python"
-               " - typer"
+               "colorama\n",
+               "dap\n",
+               "direnv\n",
+               "pip\n",
+               "python\n",
+               "typer\n"
         ]
         for i, line in enumerate(lines):
+            #Read lines[i+1] and get how many spaces it uses
             if line.strip() == "dependencies:":
+                match = re.match(r"([\s-]*)(?=\S)", lines[i+1])
+                header = "  - "
+                if match:
+                    header = match.group(1)
                 # Insert empty line after "dependencies:"
                 for l in lines_to_add:
-                    lines.insert(i + 1, l)
+                    lines.insert(i + 1, header+l)
                 break
         
         # Write the modified content back to the file
-        with open(file_path, 'w') as file:
+        with open(target_env, 'w') as file:
             file.writelines(lines)
 
         source_env = target_env

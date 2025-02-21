@@ -13,7 +13,7 @@ from convert_prj import convertProject
 
 app = typer.Typer()
 
-def hello():
+def hello(extra=""):
     intro = """
 
     ||||       ||||||    |||||||
@@ -23,9 +23,10 @@ def hello():
     ||  ||    ||    ||   ||
     ||||      ||    ||   ||
     
-    Data Analysis Project (Management)
+    Data      Analysis   Project (management)
     """
     print(intro)
+    print(extra)
 
 @app.command()
 def create(
@@ -36,7 +37,7 @@ def create(
     """
     Create a new dap project.
     """
-    hello()
+    hello("\nCreating a new DAP project")
     createProject(projectname, projectversion, source_environment, remote_git_repo)
 
 
@@ -47,7 +48,7 @@ def clone(sourceversion: str = typer.Argument(..., help="Version of the project 
     """
     Create a new version of the project by cloning an existing one.
     """
-    hello()
+    hello(f"\nCloning version {sourceversion} into {newversion}")
     cloneVersion(sourceversion, newversion, link_All_Data)
 
 @app.command()

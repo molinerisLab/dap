@@ -51,6 +51,10 @@ Basically, for rules and configuration, the user finds both global and version-s
 
 Version-specific rules and configurations always override global ones.
 
+### Convert from old dap projects
+The directory structure of DAP has been updated, renaming some directories.
+In order to work with previous projects, a command `dap convert` is offered. This command updates the directory structure and symbolic links inside the project.
+
 ## Create a new project
 The command `dap create` creates a new project in the current working directory; it initiates a git repository and creates a conda environment.
 
@@ -73,9 +77,10 @@ The user can work in its current version in *workspaces/version_name*, modify an
 ## Create new version
 `dap clone` clones a project's version creating a new one. It needs to be executed inside the project directory.
 
-`dap clone SourceVersion NewVersion`
+`dap clone [--link-All-Data] SourceVersion NewVersion`
 * SourceVersion: Name of the version to be cloned.
 * NewVersion: Name of the new version.
+* [--link-All-Data]: If enabled, copy links to files outside of the project as well - es. links to datasets.
 
 The command creates a new directory  *worspaces/{NewVersion}*. Here, for each link inside *worspaces/{OldVersion}*:
 * If the link refers to a non-version specific file: the link is copied, the original file is not changed.

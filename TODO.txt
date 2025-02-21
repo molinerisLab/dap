@@ -1,7 +1,0 @@
-
-
-DAP 2.0:
-
--dap info: explaining philosophy
--DAP convert
--Export environment
