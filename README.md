@@ -36,7 +36,6 @@ The directory structure of a DAP project is made of two main components in its r
 * The **Workspaces** directory is where versions are kept and where the user running the workflow works. 
 
 ![alt text](.img/dap_tree_workflow.png)
-![alt text](.img/dap_tree_workspaces.png)
 
 The **workflow** directory has sub-directories for the configuration files, environment, rules and scripts.
 
