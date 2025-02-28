@@ -76,9 +76,15 @@ def convertProject():
     if os.path.isdir(workspaces_dir):
         print(f"Fixing symbolic links under {workspaces_dir}")
         fix_symlinks(workspaces_dir)
+    #Update envrc:
     with open(os.path.join(base_path, ".envrc"), "r") as f:
         lines = f.readlines()
-    lines = [l for l in lines if l.strip()!="PATH_add local/bin"]
-    lines = ["PATH_add workflow/scripts\n"] + lines
+    #fix path and fix conda activate
+    lines = [l for l in lines if l.strip()!="PATH_add local/bin" and not l.trim().startswith("conda activate")]
+    lines = ["PATH_add workflow/scripts\n", 'conda activate workflow/env/env || echo "WARNING: Conda environment not loaded"\n'] + lines
     with open(os.path.join(base_path, ".envrc"), "w") as f:
         f.writelines(lines)
+    
+    #Update .gitignore
+    with open(os.path.join(base_path, ".gitignore"), "a") as f:
+        f.write("\nworkflow/env/env\nworkspaces/*\n")

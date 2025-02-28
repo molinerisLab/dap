@@ -1,5 +1,6 @@
 import os
 from sys import exit
+from utils import prj_root_not_found
 
 projBasePath = ''
 
@@ -85,7 +86,7 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
     projBasePath = os.getenv('PRJ_ROOT') 
 
     if (projBasePath == None or len(projBasePath)==0):
-        exit("Error - PRJ_ROOT is not defined. Make sure you are inside a project directory and direnv is active.")
+        prj_root_not_found()
 
     #Defines PATHS to current version and new version
     newVPath = os.path.join(projBasePath, "workspaces", destinationVersion)
