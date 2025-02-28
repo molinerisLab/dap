@@ -20,13 +20,47 @@ def version_path_ok(version_name):
 def prj_root_not_found():
     exit("Error - PRJ_ROOT is not defined.\nMake sure you are inside a project directory and direnv is active. Try running direnv allow.")
 
+def build_environment():
+    import subprocess
+    projBasePath = os.getenv('PRJ_ROOT')
+    if (projBasePath == None or len(projBasePath)==0):
+        prj_root_not_found()
+    has_mamba = (run_command(projBasePath, "which mamba"))==0
+    if (has_mamba):
+        conda_or_mamba = "mamba"
+    else:
+        conda_or_mamba = "conda"
+
+    #Check if env.yaml exists
+    if not os.path.isfile(os.path.join(projBasePath, "workflow","env","env.yaml")):
+        exit("env.yaml file not found in workflow/env")
+
+    #Check if env exists
+    if os.path.isdir(os.path.join(projBasePath, "workflow","env","env")):
+        print("Local environment already exists. Do you want to re-create it?")
+        response = input("y/n ")
+        if (response.lower()=="y" or response.lower()=="yes"):
+            p = os.path.join(projBasePath, "workflow","env", "env")
+            run_command(p, f"rm -rf {p}")
+        else:
+            exit(0)
+    base_path = projBasePath
+    command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {base_path} && "
+    command += f"""{conda_or_mamba} env create -f {os.path.join(base_path, "workflow", "env","env.yaml")} -p  {os.path.join(base_path, "workflow", "env","env")}"""
+    subprocess.run(command, shell=True, check=True, executable='/bin/bash')
+
 def export_environment():
     import subprocess
     projBasePath = os.getenv('PRJ_ROOT')
     if (projBasePath == None or len(projBasePath)==0):
         prj_root_not_found()
+    has_mamba = (run_command(projBasePath, "which mamba"))==0
+    if (has_mamba):
+        conda_or_mamba = "mamba"
+    else:
+        conda_or_mamba = "conda"
     #Activate conda, enter PRJ_ROOT
-    command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {PRJ_ROOT} && "
+    command = f"CONDA_BASE=$({conda_or_mamba} info --base) && source $CONDA_BASE/etc/profile.d/conda.sh && cd {projBasePath} && "
     #activate conda environment - just to make sure you're not exporting some other environment
     command += "conda activate workflow/env/env &&"
     #export env
@@ -67,8 +101,8 @@ def export_environment():
                     result[current_key].append(item)
         return result
     new_yaml = parse_minimal_yaml(output)
-    with open(os.path.join(PRJ_ROOT, "workflow","env","env.yaml")) as f:
-        old_yaml = f.read()
+    with open(os.path.join(projBasePath, "workflow","env","env.yaml")) as f:
+        old_yaml = parse_minimal_yaml(f.read())
     if ("name" in old_yaml):
         name = old_yaml["name"]
     else:
@@ -78,25 +112,17 @@ def export_environment():
         for v in new_yaml["channels"]:
             channels.add(v)
     if ("channels" in old_yaml):
-        for v in new_yaml["channels"]:
-            channels.add(v)
-    
-    channels = set()
-    if ("channels" in new_yaml):
-        for v in new_yaml["channels"]:
-            channels.add(v)
-    if ("channels" in old_yaml):
-        for v in new_yaml["channels"]:
+        for v in old_yaml["channels"]:
             channels.add(v)
     dependencies = set()
     if ("dependencies" in new_yaml):
         for v in new_yaml["dependencies"]:
             dependencies.add(v)
     if ("dependencies" in old_yaml):
-        for v in new_yaml["dependencies"]:
+        for v in old_yaml["dependencies"]:
             dependencies.add(v)
 
-    with open(os.path.join(PRJ_ROOT, "workflow","env","env.yaml"), "w") as f:
+    with open(os.path.join(projBasePath, "workflow","env","env.yaml"), "w") as f:
         f.write(f"name: {name}\n")
         f.write(f"channels:\n")
         for v in channels:
@@ -106,3 +132,5 @@ def export_environment():
             f.write(f"  - {v}\n")
         if "prefix" in old_yaml:
             f.write(f"prefix: {old_yaml['prefix']}")
+    print("Environment exported")
+

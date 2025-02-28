@@ -11,6 +11,7 @@ from typing_extensions import Annotated
 from mkproj import createProject
 from clone_prj import cloneVersion
 from convert_prj import convertProject
+from utils import export_environment, build_environment
 
 app = typer.Typer()
 
@@ -18,14 +19,14 @@ def hello(extra=""):
     intro = """
 
       _______    ______   _______  
-      |       \  /      \ |       \ 
-      | ▒▒▒▒▒▒▒\|  ▒▒▒▒▒▒\| ▒▒▒▒▒▒▒\
+      |       \\  /      \\ |       \\
+      | ▒▒▒▒▒▒▒\\|  ▒▒▒▒▒▒\\| ▒▒▒▒▒▒▒\\
       | ▒▒  | ▒▒| ▒▒__| ▒▒| ▒▒__/ ▒▒      
       | ▒▒  | ▒▒| ▒▒    ▒▒| ▒▒    ▒▒
       | ▒▒  | ▒▒| ▒▒▒▒▒▒▒▒| ▒▒▒▒▒▒▒ 
       | ▒▒__/ ▒▒| ▒▒  | ▒▒| ▒▒      
       | ▒▒    ▒▒| ▒▒  | ▒▒| ▒▒      
-       \▒▒▒▒▒▒▒  \▒▒   \▒▒ \▒▒      
+       \\▒▒▒▒▒▒▒  \\▒▒   \\▒▒ \\▒▒      
 ____________________________________________
 ::::::Data Analysis Project Management::::::
 
@@ -42,18 +43,18 @@ def create(
     """
     Create a new dap project.
     """
-    hello(f"\t>Creating a new DAP project - {projectname}.")
+    hello(f">Creating a new DAP project - {projectname}.\n")
     createProject(projectname, projectversion, source_environment, remote_git_repo)
 
 
 @app.command()
 def clone(sourceversion: str = typer.Argument(..., help="Version of the project to be cloned"),
         newversion: str = typer.Argument(..., help="Version of the project to be generated"),
-        link_All_Data: Annotated[bool, typer.Option(help="Copy symbolic links to data outside of the project's workflow too")] = False,):
+        link_All_Data: bool = False):
     """
     Create a new version of the project by cloning an existing one.
     """
-    hello(f"\t>Cloning version {sourceversion} into {newversion}.")
+    hello(f">Cloning version {sourceversion} into {newversion}.\n")
     cloneVersion(sourceversion, newversion, link_All_Data)
 
 @app.command()
@@ -61,7 +62,7 @@ def convert():
     """
     Convert old dap project into new structure.
     """
-    hello("\t>Converting project from old DAP version.")
+    hello(">Converting project from old DAP version.\n")
     convertProject()
 
 @app.command()
@@ -69,8 +70,16 @@ def export_env():
     """
     Update the project environment .yaml file. Useful if new packages are installed.
     """
-    hello("\t>Updating project environment .yaml file.")
-    pass
+    hello(">Updating project environment .yaml file.\n")
+    export_environment()
+
+@app.command()
+def build_env():
+    """
+    Build the project conda environment from the env.yaml file. Useful if the project has just been cloned from a git repository.
+    """
+    hello("Build project environment.\n")
+    build_environment()
 
 def run_dap():
     app()

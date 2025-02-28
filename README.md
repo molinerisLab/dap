@@ -76,6 +76,16 @@ The command creates a new directory  *worspaces/{NewVersion}*. Here, for each li
 * If the link refers to a version specific file: the version-specific file is copied, with updated name, and a link to the new file is created.
 **By convention, version specific files' names end with _{VersionName}.**
 
+### Keep conda environments updated for git users
+DAP projects use a locally stored conda environment, which can be found at *workflow/env/env*.
+
+The local environment is not included in the git repository by default, which can cause issues with reproducibility: as the user develops the pipeline, new packages are installed. But if these packages are not carefully tracked, new users cloning the repository will find a broken pipeline.
+
+but it can be reconstructed from the *env.yaml* file.
+
+To help managing environments, **dap** offers two commands:
+* `dap export-env`: exports current environment into an *env.yaml* file, which is included in the git repository.
+* `dap build-env`: builds the environment from the *env.yaml* file.
 
 ### Dap clone and sub-versions
 SourceVersion and NewVersion might refer to subfolders inside the dataset/ directory, using the common '/' syntax. For example it's possible to have a version named *humans/v1*. In this case the following operations are allowed:

@@ -15,15 +15,15 @@ def get_files(version_name):
 
     #Files to be copied in the project. Destination is relative to PRJ_PATH; source files must be inside the model folder.
     files_to_copy = [
-            ['.gitignore', '.gitignore'],
-            ['.envrc', '.envrc'],
-            ['Snakefile','workflow/rules/Snakefile'],
+            ['dap_model/.gitignore', '.gitignore'],
+            ['dap_model/.envrc', '.envrc'],
+            ['dap_model/Snakefile','workflow/rules/Snakefile'],
+            ['dap_model/config_general.yaml', "workflow/config/config_general.yaml"],
+            ['dap_model/config.yaml', f'workflow/config/config_{version_name}.yaml'],
     ]
 
     files_to_create = [
-        'workflow/config/config_general.yaml',
         'workflow/config/config.smk',
-        f'workflow/config/config_{version_name}.yaml',
         f'workflow/rules/Snakefile_versioned_{version_name}.sk'
     ]
 
@@ -128,7 +128,7 @@ def createProject(project_name, project_version, source_env, remote_repo):
         source_env = target_env
 
     if (source_env == None):
-        source_env = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,'dapdefault.yml')
+        source_env = os.path.join(os.path.dirname(os.path.realpath(__file__)), "dap_model" ,'dapdefault.yml')
         copy_file(source_env, os.path.join(base_path, "workflow", "env", "env.yaml"))
     
 
