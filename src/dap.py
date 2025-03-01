@@ -9,16 +9,16 @@ import typer
 from typing import Optional
 from typing_extensions import Annotated
 from mkproj import createProject
-from clone_prj import cloneVersion, makeTest, prune
+from clone_prj import cloneVersion, makeTest, dap_prune
 from convert_prj import convertProject
-from utils import export_environment, build_environment
+from utils import export_environment, build_environment, check_if_older_project
 
 app = typer.Typer()
 
 def hello(extra=""):
     intro = """
 
-      _______    ______   _______  
+       _______    ______   _______  
       |       \\  /      \\ |       \\
       | ▒▒▒▒▒▒▒\\|  ▒▒▒▒▒▒\\| ▒▒▒▒▒▒▒\\
       | ▒▒  | ▒▒| ▒▒__| ▒▒| ▒▒__/ ▒▒      
@@ -55,16 +55,18 @@ def clone(sourceversion: str = typer.Argument(..., help="Version of the project 
     Create a new version of the project by cloning an existing one.
     """
     hello(f">Cloning version {sourceversion} into {newversion}.\n")
+    check_if_older_project()
     cloneVersion(sourceversion, newversion, link_All_Data)
 
 @app.command()
-def make_test(templateVersion: str = typer.Argument(..., help="Version of the project to be used as test template"),
+def make_test(templateversion: str = typer.Argument(..., help="Version of the project to be used as test template"),
         test_name: str = typer.Argument(..., help="Name of the test")):
     """
     Create a test using a version as a template. Files inside the template version will be copied and added to git - it is recommended to create tests with minimal input data.
     """
-    hello(f">Creating test {test_name} from template {templateVersion}.\n")
-    makeTest(templateVersion, test_name)
+    hello(f">Creating test {test_name} from template {templateversion}.\n")
+    check_if_older_project()
+    makeTest(templateversion, test_name)
 
 @app.command()
 def convert():
@@ -80,6 +82,7 @@ def export_env():
     Update the project environment .yaml file. Useful if new packages are installed.
     """
     hello(">Updating project environment .yaml file.\n")
+    check_if_older_project()
     export_environment()
 
 @app.command()
@@ -88,15 +91,17 @@ def build_env():
     Build the project conda environment from the env.yaml file. Useful if the project has just been cloned from a git repository.
     """
     hello("Build project environment.\n")
+    check_if_older_project()
     build_environment()
 
 @app.command()
-def prune():
+def delete_version(version: str = typer.Argument(..., help="Version of the project to be removed")):
     """
-    Clean workflow directories, remove files connected to versions no longer existing.
+    Removes a version, including all the version specific files inside workflow/
     """
-    hello("Cleaning workflow directories.\n")
-    prune()
+    hello(f"Removing version {version}.\n")
+    check_if_older_project()
+    dap_prune(version)
 
 def run_dap():
     app()

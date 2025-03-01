@@ -137,7 +137,7 @@ def validate_version_for_test(path, projBasePath):
         elif (os.path.isdir(file_path)):
             #recursion
             bad_links_, files_ = validate_version_for_test(file_path, projBasePath)
-            links += links_; bad_links += bad_links_; files += files_
+            bad_links += bad_links_; files += files_
         else:
             size = os.path.getsize(file_path)
             files.append((file_path, size / 1024))#kb
@@ -145,50 +145,34 @@ def validate_version_for_test(path, projBasePath):
     return bad_links, files
 
 
-def prune(only_version=None, skip_confirmation=False):
-    prj_root_not_found = os.getenv('PRJ_ROOT') 
-    if (prj_root_not_found == None or len(prj_root_not_found)==0):
+def dap_prune(only_version, skip_confirmation=False):
+    prj_root = os.getenv('PRJ_ROOT') 
+    if (prj_root == None or len(prj_root)==0):
         prj_root_not_found()
 
     def get_all_workflow_version_files(directory_path, only_version):
-        all_files = dict()
+        all_files = []
         for root, dirs, files in os.walk(directory_path):
             for file in files:
                 filename = os.path.basename(file)
                 file_path = os.path.join(root, file)
-                if '_' in filename:
-                    before_underscore, after_underscore = filename.split('_', 1)
-                    if after_underscore in all_files:
-                        all_files[after_underscore].append(file_path)
-                    else:
-                        all_files[after_underscore] = [file_path]
+                rel_path = os.path.relpath(file_path, directory_path)
+                if (rel_path.startswith("env")):
+                    continue
+                #Remove format syntax
+                
+                if f"_{only_version}" in filename:
+                    all_files.append(file_path)
         return all_files 
-
-        
-    def get_all_versions(root_directory):
-        subdirectories = []
-        root_directory = os.path.abspath(root_directory)
-        for dirpath, dirnames, _ in os.walk(root_directory):
-            if dirpath == root_directory:
-                continue
-            rel_path = os.path.relpath(dirpath, root_directory)
-            subdirectories.append(rel_path.replace("/", "_"))
-        return set(subdirectories) 
-
     
-    all_version_files = get_all_workflow_version_files(os.path.join(prj_root, "workflow"), only_version)
-    if (only_version is not None):
-        if only_version in to_delete:
-            to_delete = all_version_files[only_version]
-        else:
-            to_delete = []
-    else:
-        all_versions = get_all_versions(os.path.join(prj_root, "workspaces"))
-        to_delete = []
-        for key in all_version_files.keys():
-            if key not in all_versions:
-                to_delete.append(all_versions[key])
+    to_delete = get_all_workflow_version_files(os.path.join(prj_root, "workflow"), only_version.replace("/","_"))
+    if os.path.isdir(os.path.join(prj_root, "workspaces", only_version)):
+        to_delete.append(os.path.join(prj_root, "workspaces", only_version))
+    
     if (not skip_confirmation):
+        if (len(to_delete)==0):
+            print(">Nothing to remove")
+            exit()
         print(f">DAP prune - the following files are going to be deleted:")
         for f in to_delete:
             print(f"\t- {f}")
@@ -196,8 +180,9 @@ def prune(only_version=None, skip_confirmation=False):
         response = input("y/n ")
         if not(response.lower()=="y" or response.lower()=="yes"):
             exit(0)
+
     for f in to_delete:
-        run_command(prj_root, f"rm -rf f")
+        run_command(prj_root, f"rm -rf {f}")
 
 
 
@@ -246,12 +231,12 @@ def makeTest(sourceVersion, test_name):
     #Ask user to delete the sourceVersion
     print(f"\n>Test {test_name} successfully created from template {sourceVersion}")
     print(f">Do you want to remove the template version {sourceVersion}?")
-    print(f">Removing the template version results in the deletion of directory: {currentVPath}")
+    print(f">Removing the template version results in the deletion of directory: {currentVPath} and all version-specific files in workflow/")
     response = input("y/n ")
     if not(response.lower()=="y" or response.lower()=="yes"):
         return 
     run_command(currentVPath, f"rm -rf {currentVPath}")
-    prune(sourceVersion, True)
+    dap_prune(sourceVersion, True)
 
 
 def main():
