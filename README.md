@@ -87,6 +87,27 @@ To help managing environments, **dap** offers two commands:
 * `dap export-env`: exports current environment into an *env.yaml* file, which is included in the git repository.
 * `dap build-env`: builds the environment from the *env.yaml* file.
 
+### Make tests
+Trying to push for sustainable workflow definition, DAP encourages users to build tests for their versions.
+
+Tests have two objectives: to validate the pipeline and to serve as examples for new users.
+
+Each test should exhibit these characteristics:
+* It runs with a single command.
+* It requires no configuration before running.
+* It is self-contained, no need to provide data..
+* It is as fast and lightweight as possible.
+
+DAP provides a command 
+
+`dap make-test <template_version> <test_name>`
+
+This command creates a test using a given version as a template. It works similarly to `dap clone` but with some differences:
+* **Links to files outside the workflow are not allowed**. Tests should be ready to run on different machines after *git clone*.
+* **Files are copied**: while standard version cloning does not copy files, tests are self contained, so input files for the pipeline are copied to the test directory.
+
+   **Warning**: files inside the *tests* directory are included in the git repository. It is recommended to set up tests with small input files.
+
 ### Dap clone and sub-versions
 SourceVersion and NewVersion might refer to subfolders inside the dataset/ directory, using the common '/' syntax. For example it's possible to have a version named *humans/v1*. In this case the following operations are allowed:
 * dap clone humans/v1 humans/v2 --> simply clones the humans/v1 version into humans/v2.

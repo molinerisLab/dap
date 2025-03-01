@@ -9,7 +9,7 @@ import typer
 from typing import Optional
 from typing_extensions import Annotated
 from mkproj import createProject
-from clone_prj import cloneVersion
+from clone_prj import cloneVersion, makeTest, prune
 from convert_prj import convertProject
 from utils import export_environment, build_environment
 
@@ -58,6 +58,15 @@ def clone(sourceversion: str = typer.Argument(..., help="Version of the project 
     cloneVersion(sourceversion, newversion, link_All_Data)
 
 @app.command()
+def make_test(templateVersion: str = typer.Argument(..., help="Version of the project to be used as test template"),
+        test_name: str = typer.Argument(..., help="Name of the test")):
+    """
+    Create a test using a version as a template. Files inside the template version will be copied and added to git - it is recommended to create tests with minimal input data.
+    """
+    hello(f">Creating test {test_name} from template {templateVersion}.\n")
+    makeTest(templateVersion, test_name)
+
+@app.command()
 def convert():
     """
     Convert old dap project into new structure.
@@ -80,6 +89,14 @@ def build_env():
     """
     hello("Build project environment.\n")
     build_environment()
+
+@app.command()
+def prune():
+    """
+    Clean workflow directories, remove files connected to versions no longer existing.
+    """
+    hello("Cleaning workflow directories.\n")
+    prune()
 
 def run_dap():
     app()

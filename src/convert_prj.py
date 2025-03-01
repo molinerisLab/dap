@@ -80,8 +80,8 @@ def convertProject():
     with open(os.path.join(base_path, ".envrc"), "r") as f:
         lines = f.readlines()
     #fix path and fix conda activate
-    lines = [l for l in lines if l.strip()!="PATH_add local/bin" and not l.trim().startswith("conda activate")]
-    lines = ["PATH_add workflow/scripts\n", 'conda activate workflow/env/env || echo "WARNING: Conda environment not loaded"\n'] + lines
+    lines = [l for l in lines if l.strip()!="PATH_add local/bin" and not l.strip().startswith("conda activate")]
+    lines = lines + ["PATH_add workflow/scripts\n", 'conda activate workflow/env/env || echo "WARNING: Conda environment not loaded"\n'] 
     with open(os.path.join(base_path, ".envrc"), "w") as f:
         f.writelines(lines)
     

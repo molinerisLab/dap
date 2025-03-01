@@ -1,6 +1,6 @@
 import os
 from sys import exit
-from utils import prj_root_not_found
+from utils import run_command, prj_root_not_found
 
 projBasePath = ''
 
@@ -29,9 +29,10 @@ def copyFile(sourcePath, destinationPath):
     os.chdir(executionDir)
 
 
-def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_all_links):
+def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_all_links, copyFiles=False):
     #Generate a list of sys links to copy
     links = []
+    files = []
     for file in os.listdir(currentVPath):
         file_path = os.path.join(currentVPath, file)
         #If is a link:
@@ -41,10 +42,15 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
                 links.append(file_path)
         #If it's a directory, recursively calls makeLinks on it, to clone its content        
         elif (os.path.isdir(file_path)):
-            makeLinks(file_path, os.path.join(newVPath, file), destinationVersion, sourceVersion,make_all_links)
+            os.makedirs(os.path.join(newVPath, file), exist_ok=True)
+            makeLinks(file_path, os.path.join(newVPath, file), destinationVersion, sourceVersion, make_all_links, copyFiles)
+        elif (copyFiles):
+            files.append((file_path, os.path.join(newVPath, file)))
         elif (make_all_links):
             links.append(os.path.join(currentVPath, file))
 
+    for file_path, new_path in files:
+        run_command(currentVPath, f"cp {file_path} {new_path}")
         
     for link in links:
         realPath =  os.path.realpath(link)
@@ -60,6 +66,9 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
         #(i.e. workflow/../file_v1.txt  =>  workflow/../file_v2.txt)
         if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
             new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'workspaces')).replace('/','_')
+            if (new_version_suffix.startswith("..") or new_version_suffix.startswith("_..")):
+                #it's a test
+                new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'tests')).replace('/','_')
             if (n[0].endswith(version_suffix)):
                 newFilename = n[0][:-len(version_suffix)] + new_version_suffix + n[1]
             else:
@@ -112,6 +121,138 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
     os.chdir(projBasePath)
     os.system("git commit -m \"Version {} created\"".format(destinationVersion))
     os.chdir(executionDir)
+
+#Checks if the directory contains links to things outside of project
+#and if there are big files
+def validate_version_for_test(path, projBasePath):
+    bad_links = []
+    files = []
+
+    for file in os.listdir(path):
+        file_path = os.path.join(path, file)
+        if (os.path.islink(file_path)):
+            if not (os.path.relpath(os.path.realpath(file_path),projBasePath)).startswith('workflow'):
+                bad_links.append((file_path, os.path.realpath(file_path)))
+
+        elif (os.path.isdir(file_path)):
+            #recursion
+            bad_links_, files_ = validate_version_for_test(file_path, projBasePath)
+            links += links_; bad_links += bad_links_; files += files_
+        else:
+            size = os.path.getsize(file_path)
+            files.append((file_path, size / 1024))#kb
+
+    return bad_links, files
+
+
+def prune(only_version=None, skip_confirmation=False):
+    prj_root_not_found = os.getenv('PRJ_ROOT') 
+    if (prj_root_not_found == None or len(prj_root_not_found)==0):
+        prj_root_not_found()
+
+    def get_all_workflow_version_files(directory_path, only_version):
+        all_files = dict()
+        for root, dirs, files in os.walk(directory_path):
+            for file in files:
+                filename = os.path.basename(file)
+                file_path = os.path.join(root, file)
+                if '_' in filename:
+                    before_underscore, after_underscore = filename.split('_', 1)
+                    if after_underscore in all_files:
+                        all_files[after_underscore].append(file_path)
+                    else:
+                        all_files[after_underscore] = [file_path]
+        return all_files 
+
+        
+    def get_all_versions(root_directory):
+        subdirectories = []
+        root_directory = os.path.abspath(root_directory)
+        for dirpath, dirnames, _ in os.walk(root_directory):
+            if dirpath == root_directory:
+                continue
+            rel_path = os.path.relpath(dirpath, root_directory)
+            subdirectories.append(rel_path.replace("/", "_"))
+        return set(subdirectories) 
+
+    
+    all_version_files = get_all_workflow_version_files(os.path.join(prj_root, "workflow"), only_version)
+    if (only_version is not None):
+        if only_version in to_delete:
+            to_delete = all_version_files[only_version]
+        else:
+            to_delete = []
+    else:
+        all_versions = get_all_versions(os.path.join(prj_root, "workspaces"))
+        to_delete = []
+        for key in all_version_files.keys():
+            if key not in all_versions:
+                to_delete.append(all_versions[key])
+    if (not skip_confirmation):
+        print(f">DAP prune - the following files are going to be deleted:")
+        for f in to_delete:
+            print(f"\t- {f}")
+        print(f">Do you want to proceed?")
+        response = input("y/n ")
+        if not(response.lower()=="y" or response.lower()=="yes"):
+            exit(0)
+    for f in to_delete:
+        run_command(prj_root, f"rm -rf f")
+
+
+
+def makeTest(sourceVersion, test_name):
+    global projBasePath
+    projBasePath = os.getenv('PRJ_ROOT') 
+
+    if (projBasePath == None or len(projBasePath)==0):
+        prj_root_not_found()
+
+    #Defines PATHS to current version and new version
+    newVPath = os.path.join(projBasePath, "tests", test_name)
+    currentVPath = os.path.join(projBasePath, "workspaces", sourceVersion)
+
+
+    if (os.path.isdir(newVPath)):
+        exit(f"Error - Test {newVPath} already exists")
+    if (not os.path.isdir(projBasePath)):
+        exit(f"Error - Could not find project directory {projBasePath}.")
+    if (not (os.path.isdir(os.path.join(projBasePath, "workspaces")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
+        exit(f"Error - Project directory {projBasePath} does not contain workspaces or workflow subfolders.")
+    if (not os.path.isdir(currentVPath)):
+        exit(f"Error - Could not find  version path {currentVPath}")
+
+    bad_links, files = validate_version_for_test(currentVPath, projBasePath)
+    if (len(bad_links)>0):
+        for link_name, link_path in bad_links:
+            print(f"Error: link {bad_links} refers to file {link_path}")
+        exit("Symbolic links in tests must point to data in workflow. This is needed to guarantee the tests work in newly cloned repositories.")
+    files = [f for f in files if f[1]>= 10*1024]
+    if (len(files)>0):
+        print("Some files are large:")
+        for f, s in files:
+            print(f"File {f}: {s} KB.")
+        print("Input files for tests are added to the git repository. You might want to generate a test version with smaller files.")
+        print("Do you want to proceed anyway?")
+        response = input("y/n ")
+        if not(response.lower()=="y" or response.lower()=="yes"):
+            exit(0)
+
+    #Generate directory for new version if not existing
+    os.makedirs(newVPath, exist_ok = True)
+    #Generate system links
+    makeLinks(currentVPath, newVPath, test_name, sourceVersion, True, True)    
+
+    #Ask user to delete the sourceVersion
+    print(f"\n>Test {test_name} successfully created from template {sourceVersion}")
+    print(f">Do you want to remove the template version {sourceVersion}?")
+    print(f">Removing the template version results in the deletion of directory: {currentVPath}")
+    response = input("y/n ")
+    if not(response.lower()=="y" or response.lower()=="yes"):
+        return 
+    run_command(currentVPath, f"rm -rf {currentVPath}")
+    prune(sourceVersion, True)
+
 
 def main():
     print("Clone prj")

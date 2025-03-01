@@ -134,3 +134,17 @@ def export_environment():
             f.write(f"prefix: {old_yaml['prefix']}")
     print("Environment exported")
 
+
+def check_if_older_project():
+    prj_root = os.getenv('PRJ_ROOT') 
+    if (prj_root == None or len(prj_root)==0):
+        return 
+    if (
+        not os.path.isdir(os.path.join(prj_root, "workflow")) and
+        not os.path.isdir(os.path.join(prj_root, "workspaces")) and 
+        os.path.isdir(os.path.join(prj_root, "local")) and 
+        os.path.isdir(os.path.join(prj_root, "dataset"))
+    ):
+        print(f"> It seems this project was created with an older version of DAP.")
+        print("> Run 'dap convert' to convert this project to the new DAP version.")
+        exit()
