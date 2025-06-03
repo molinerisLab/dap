@@ -123,13 +123,13 @@ These operations are not allowed:
 The directory structure of a DAP project is made of two main components in its root:
 * The **Workflow** directory, containing the entire project's logic and configuration, both global and version-specific.
    * The Workflow directory is **not** where the user stores the input files, results and it's not where the user works.
-* The **Workspaces** directory is where versions are kept and where the user running the workflow works. 
+* The **results** directory is where versions are kept and where the user running the workflow works. 
 
 ![alt text](.img/dap_tree_workflow.png)
 
 The **workflow** directory has sub-directories for the configuration files, environment, rules and scripts.
 
-The **workspaces** directory has sub-directories for all the versions created. Inside each version:
+The **results** directory has sub-directories for all the versions created. Inside each version:
 * **Snakefile** is a symbolic link to *workflows/rules/Snakefile*
 * **Snakefile_versioned.sk**  is a symbolic link to *workflows/rules/Snakefile_versioned_{VERSION_NAME}*
 * **config_global.yaml** is a symbolic link to *workflows/config/config_global.yaml*

@@ -8,7 +8,7 @@ from utils import copy_file, getRelativePath, run_command, version_path_ok
 def get_files(version_name):
     version_name = version_path_ok(version_name)
     base_directories = [
-        'workspaces/', f'workspaces/{version_name}',
+        'results/', f'results/{version_name}',
         'workflow/scripts', 'workflow/env', 'workflow/rules',
         'workflow/config/', 'tests', 'workflow/docs'
     ]
@@ -28,7 +28,7 @@ def get_files(version_name):
         f'workflow/rules/Snakefile_versioned_{version_name}.sk'
     ]
 
-    dest = f"workspaces/{version_name}"
+    dest = f"results/{version_name}"
     filesToLink = [
             ['workflow/rules/Snakefile', dest+'/Snakefile'],
             ['workflow/config/config_general.yaml', dest+'/config_general.yaml'],

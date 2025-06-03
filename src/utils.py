@@ -141,7 +141,7 @@ def check_if_older_project():
         return 
     if (
         not os.path.isdir(os.path.join(prj_root, "workflow")) and
-        not os.path.isdir(os.path.join(prj_root, "workspaces")) and 
+        not os.path.isdir(os.path.join(prj_root, "results")) and 
         os.path.isdir(os.path.join(prj_root, "local")) and 
         os.path.isdir(os.path.join(prj_root, "dataset"))
     ):

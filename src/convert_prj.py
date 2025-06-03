@@ -5,12 +5,12 @@ import sys
 from utils import *
 
 def rename_directories(base_path):
-    # 1. Rename PATH/dataset to PATH/workspaces
+    # 1. Rename PATH/dataset to PATH/results
     dataset_path = os.path.join(base_path, "dataset")
-    workspaces_path = os.path.join(base_path, "workspaces")
+    results_path = os.path.join(base_path, "results")
     if os.path.exists(dataset_path):
-        print(f"Renaming {dataset_path} to {workspaces_path}")
-        os.rename(dataset_path, workspaces_path)
+        print(f"Renaming {dataset_path} to {results_path}")
+        os.rename(dataset_path, results_path)
     else:
         print(f"Directory {dataset_path} does not exist.")
 
@@ -27,7 +27,7 @@ def fix_symlinks(root_path):
     """
     Recursively traverse the given root_path.
     For each symbolic link, if its target contains 'dataset' or 'local',
-    update the link so that 'dataset' becomes 'workspaces' and 'local' becomes 'workflow'.
+    update the link so that 'dataset' becomes 'results' and 'local' becomes 'workflow'.
     """
     for dirpath, dirnames, filenames in os.walk(root_path, followlinks=False):
         for item in dirnames + filenames:
@@ -38,7 +38,7 @@ def fix_symlinks(root_path):
                 target_abs = os.path.relpath(target_abs,root_path)
                 if (target_abs.startswith("local")):
                     try:
-                        new_target = target.replace("dataset", "workspaces").replace("local/bin", "workflow/scripts").replace("local", "workflow")
+                        new_target = target.replace("dataset", "results").replace("local/bin", "workflow/scripts").replace("local", "workflow")
                         if new_target != target:
                             os.remove(full_path)
                             os.symlink(new_target, full_path)
@@ -58,13 +58,13 @@ def main():
 
     rename_directories(base_path)
 
-    # Now fix symlinks under PATH/workspaces
-    workspaces_dir = os.path.join(base_path, "workspaces")
-    if os.path.isdir(workspaces_dir):
-        print(f"Fixing symbolic links under {workspaces_dir}")
-        fix_symlinks(workspaces_dir)
+    # Now fix symlinks under PATH/results
+    results_dir = os.path.join(base_path, "results")
+    if os.path.isdir(results_dir):
+        print(f"Fixing symbolic links under {results_dir}")
+        fix_symlinks(results_dir)
     else:
-        print(f"Directory {workspaces_dir} does not exist. Cannot fix symbolic links.")
+        print(f"Directory {results_dir} does not exist. Cannot fix symbolic links.")
 
 if __name__ == "__main__":
     main()
@@ -72,10 +72,10 @@ if __name__ == "__main__":
 def convertProject():
     base_path = os.getenv('PRJ_ROOT') 
     rename_directories(base_path)
-    workspaces_dir = os.path.join(base_path, "workspaces")
-    if os.path.isdir(workspaces_dir):
-        print(f"Fixing symbolic links under {workspaces_dir}")
-        fix_symlinks(workspaces_dir)
+    results_dir = os.path.join(base_path, "results")
+    if os.path.isdir(results_dir):
+        print(f"Fixing symbolic links under {results_dir}")
+        fix_symlinks(results_dir)
     #Update envrc:
     with open(os.path.join(base_path, ".envrc"), "r") as f:
         lines = f.readlines()
@@ -87,4 +87,4 @@ def convertProject():
     
     #Update .gitignore
     with open(os.path.join(base_path, ".gitignore"), "a") as f:
-        f.write("\nworkflow/env/env\nworkspaces/*\n")
+        f.write("\nworkflow/env/env\nresults/*\n")

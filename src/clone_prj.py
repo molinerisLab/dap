@@ -57,7 +57,7 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
         fileName = os.path.basename(realPath)
         n = os.path.splitext(fileName)
 
-        version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'workspaces')).replace('/','_')
+        version_suffix = os.path.relpath(currentVPath, os.path.join(projBasePath, 'results')).replace('/','_')
         #Files in workflow/modules belongs to a sub-module of the project and behaves differently (see later)
         belongs_to_module = (os.path.relpath(realPath,projBasePath)).startswith(os.path.join('workflow', 'modules'))
 
@@ -65,7 +65,7 @@ def makeLinks(currentVPath, newVPath, destinationVersion, sourceVersion, make_al
         #are cloned, with the new version in the filename
         #(i.e. workflow/../file_v1.txt  =>  workflow/../file_v2.txt)
         if ((not belongs_to_module) and n[0].endswith("_"+version_suffix)):
-            new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'workspaces')).replace('/','_')
+            new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'results')).replace('/','_')
             if (new_version_suffix.startswith("..") or new_version_suffix.startswith("_..")):
                 #it's a test
                 new_version_suffix = os.path.relpath(newVPath, os.path.join(projBasePath, 'tests')).replace('/','_')
@@ -98,8 +98,8 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
         prj_root_not_found()
 
     #Defines PATHS to current version and new version
-    newVPath = os.path.join(projBasePath, "workspaces", destinationVersion)
-    currentVPath = os.path.join(projBasePath, "workspaces", sourceVersion)
+    newVPath = os.path.join(projBasePath, "results", destinationVersion)
+    currentVPath = os.path.join(projBasePath, "results", sourceVersion)
 
     #Check: cannot generate a version into a sub-directory or parent directory of the current version
     prevent_infinite_recursion(sourceVersion, destinationVersion)
@@ -108,8 +108,8 @@ def cloneVersion(sourceVersion, destinationVersion, linkAllData):
         exit(f"Error - Version {newVPath} already exists")
     if (not os.path.isdir(projBasePath)):
         exit(f"Error - Could not find project directory {projBasePath}.")
-    if (not (os.path.isdir(os.path.join(projBasePath, "workspaces")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
-        exit(f"Error - Project directory {projBasePath} does not contain workspaces or workflow subfolders.")
+    if (not (os.path.isdir(os.path.join(projBasePath, "results")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
+        exit(f"Error - Project directory {projBasePath} does not contain results or workflow subfolders.")
     if (not os.path.isdir(currentVPath)):
         exit(f"Error - Could not find  current version path {currentVPath}")
 
@@ -166,8 +166,8 @@ def dap_prune(only_version, skip_confirmation=False):
         return all_files 
     
     to_delete = get_all_workflow_version_files(os.path.join(prj_root, "workflow"), only_version.replace("/","_"))
-    if os.path.isdir(os.path.join(prj_root, "workspaces", only_version)):
-        to_delete.append(os.path.join(prj_root, "workspaces", only_version))
+    if os.path.isdir(os.path.join(prj_root, "results", only_version)):
+        to_delete.append(os.path.join(prj_root, "results", only_version))
     
     if (not skip_confirmation):
         if (len(to_delete)==0):
@@ -195,15 +195,15 @@ def makeTest(sourceVersion, test_name):
 
     #Defines PATHS to current version and new version
     newVPath = os.path.join(projBasePath, "tests", test_name)
-    currentVPath = os.path.join(projBasePath, "workspaces", sourceVersion)
+    currentVPath = os.path.join(projBasePath, "results", sourceVersion)
 
 
     if (os.path.isdir(newVPath)):
         exit(f"Error - Test {newVPath} already exists")
     if (not os.path.isdir(projBasePath)):
         exit(f"Error - Could not find project directory {projBasePath}.")
-    if (not (os.path.isdir(os.path.join(projBasePath, "workspaces")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
-        exit(f"Error - Project directory {projBasePath} does not contain workspaces or workflow subfolders.")
+    if (not (os.path.isdir(os.path.join(projBasePath, "results")) and os.path.isdir(os.path.join(projBasePath, "workflow")))):
+        exit(f"Error - Project directory {projBasePath} does not contain results or workflow subfolders.")
     if (not os.path.isdir(currentVPath)):
         exit(f"Error - Could not find  version path {currentVPath}")
 
