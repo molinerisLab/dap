@@ -111,6 +111,7 @@ def createProject(project_name, project_version, source_env, remote_repo):
                "python\n",
                "typer\n"
         ]
+        #Add additional dependencies
         for i, line in enumerate(lines):
             #Read lines[i+1] and get how many spaces it uses
             if line.strip() == "dependencies:":
@@ -122,7 +123,20 @@ def createProject(project_name, project_version, source_env, remote_repo):
                 for l in lines_to_add:
                     lines.insert(i + 1, header+l)
                 break
-        
+        # Add molinerislab repository to the channels
+        if ("molinerislab" in " ".join(lines)):
+            pass
+        elif ("channels:" not in " ".join(lines)):
+            lines.insert(1, "channels:\n  - molinerislab\n")
+        else:
+            for i, line in enumerate(lines):
+                if line.strip() == "channels:":
+                    match = re.match(r"([\s-]*)(?=\S)", lines[i+1])
+                    header = "  - "
+                    if match:
+                        header = match.group(1)
+                    lines.insert(i + 1, header + "molinerislab\n")
+
         # Write the modified content back to the file
         with open(target_env, 'w') as file:
             file.writelines(lines)
